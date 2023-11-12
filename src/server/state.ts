@@ -3,7 +3,14 @@ import {
   DiagnosticSeverity,
   type Diagnostic,
 } from "vscode-languageserver/node";
-import { scanFile, scanLine } from "./scan";
+
+export type ScanCallback = (
+  /**
+   * The name is the content of the first capture group.
+   */
+  name: string,
+  range: Range
+) => void;
 
 export class State {
   readonly uri2diagnostics: Map<string, Diagnostic[]>;
@@ -61,11 +68,11 @@ export class State {
    */
   scanFile(uri: string, text: string, patterns: { def: RegExp; ref: RegExp }) {
     // defs
-    scanFile(text, patterns.def, (name, range) => {
+    this._scanFile(text, patterns.def, (name, range) => {
       this.appendDefinition(uri, name, range);
     });
     // refs
-    scanFile(text, patterns.ref, (name, range) => {
+    this._scanFile(text, patterns.ref, (name, range) => {
       this.appendReference(uri, name, range);
     });
   }
@@ -100,12 +107,37 @@ export class State {
     }
 
     // defs
-    scanLine(line, lineIndex, patterns.def, (name, range) => {
+    this._scanLine(line, lineIndex, patterns.def, (name, range) => {
       this.appendDefinition(uri, name, range);
     });
     // refs
-    scanLine(line, lineIndex, patterns.ref, (name, range) => {
+    this._scanLine(line, lineIndex, patterns.ref, (name, range) => {
       this.appendReference(uri, name, range);
+    });
+  }
+
+  _scanLine(
+    line: string,
+    lineIndex: number,
+    pattern: RegExp,
+    cb: ScanCallback
+  ) {
+    for (const m of line.matchAll(pattern)) {
+      cb(
+        m[1], // the first capture group
+        {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          start: { line: lineIndex, character: m.index! },
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          end: { line: lineIndex, character: m.index! + m[0].length },
+        }
+      );
+    }
+  }
+
+  _scanFile(text: string, pattern: RegExp, cb: ScanCallback) {
+    text.split("\n").forEach((line, lineIndex) => {
+      this._scanLine(line, lineIndex, pattern, cb);
     });
   }
 }
