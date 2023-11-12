@@ -5,6 +5,30 @@ import {
 } from "vscode-languageserver/node";
 import { fileUri2relative } from "./utils";
 
+// https://github.com/microsoft/TypeScript/issues/44227
+declare global {
+  interface RegExpIndicesArray extends Array<[number, number]> {
+    groups?: {
+      [key: string]: [number, number];
+    };
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    0: [number, number];
+  }
+
+  interface RegExpMatchArray {
+    indices?: RegExpIndicesArray;
+  }
+
+  interface RegExpExecArray {
+    indices?: RegExpIndicesArray;
+  }
+
+  interface RegExp {
+    readonly hasIndices: boolean;
+  }
+}
+
 export class State {
   definitionPattern?: RegExp;
   referencePattern?: RegExp;
@@ -14,9 +38,18 @@ export class State {
   /**
    * Duplicated definitions are also recorded but will send diagnostics.
    */
-  readonly name2defs: Map<string, { uri: string; range: Range }[]>;
-  readonly uri2defs: Map<string, { name: string; range: Range }[]>;
-  readonly uri2refs: Map<string, { name: string; range: Range }[]>;
+  readonly name2defs: Map<
+    string,
+    { uri: string; range: Range; nameRange: Range }[]
+  >;
+  readonly uri2defs: Map<
+    string,
+    { name: string; range: Range; nameRange: Range }[]
+  >;
+  readonly uri2refs: Map<
+    string,
+    { name: string; range: Range; nameRange: Range }[]
+  >;
 
   constructor() {
     this.workspaceFolders = [];
@@ -31,8 +64,8 @@ export class State {
     ref: string;
     completionPrefix: string;
   }) {
-    this.definitionPattern = new RegExp(patterns.def, "g");
-    this.referencePattern = new RegExp(patterns.ref, "g");
+    this.definitionPattern = new RegExp(patterns.def, "dg");
+    this.referencePattern = new RegExp(patterns.ref, "dg");
     this.completionPrefixPattern = new RegExp(patterns.completionPrefix);
   }
 
@@ -48,19 +81,29 @@ export class State {
     this.uri2diagnostics.set(uri, diagnostics);
   }
 
-  private appendDefinition(uri: string, name: string, range: Range) {
+  private appendDefinition(
+    uri: string,
+    name: string,
+    range: Range,
+    nameRange: Range
+  ) {
     const uri2def = this.uri2defs.get(uri) ?? [];
-    uri2def.push({ name, range });
+    uri2def.push({ name, range, nameRange });
     this.uri2defs.set(uri, uri2def);
 
     const name2def = this.name2defs.get(name) ?? [];
-    name2def.push({ uri, range });
+    name2def.push({ uri, range, nameRange });
     this.name2defs.set(name, name2def);
   }
 
-  private appendReference(uri: string, name: string, range: Range) {
+  private appendReference(
+    uri: string,
+    name: string,
+    range: Range,
+    nameRange: Range
+  ) {
     const refs = this.uri2refs.get(uri) ?? [];
-    refs.push({ name, range });
+    refs.push({ name, range, nameRange });
     this.uri2refs.set(uri, refs);
   }
 
@@ -96,16 +139,26 @@ export class State {
 
     text.split("\n").forEach((line, lineIndex) => {
       // defs
-      this.matchLine(line, lineIndex, definitionPattern, (name, range) => {
-        // console.log(`found def: ${JSON.stringify(name)}`);
-        this.appendDefinition(uri, name, range);
-      });
+      this.matchLine(
+        line,
+        lineIndex,
+        definitionPattern,
+        (name, range, nameRange) => {
+          // console.log(`found def: ${JSON.stringify(name)}`);
+          this.appendDefinition(uri, name, range, nameRange);
+        }
+      );
 
       // refs
-      this.matchLine(line, lineIndex, referencePattern, (name, range) => {
-        // console.log(`found ref: ${JSON.stringify(name)}`);
-        this.appendReference(uri, name, range);
-      });
+      this.matchLine(
+        line,
+        lineIndex,
+        referencePattern,
+        (name, range, nameRange) => {
+          // console.log(`found ref: ${JSON.stringify(name)}`);
+          this.appendReference(uri, name, range, nameRange);
+        }
+      );
     });
   }
 
@@ -157,7 +210,8 @@ export class State {
        * The name is the content of the first capture group.
        */
       name: string,
-      range: Range
+      range: Range,
+      nameRange: Range
     ) => void
   ) {
     for (const m of line.matchAll(pattern)) {
@@ -168,6 +222,12 @@ export class State {
           start: { line: lineIndex, character: m.index! },
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           end: { line: lineIndex, character: m.index! + m[0].length },
+        },
+        {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          start: { line: lineIndex, character: m.indices![1][0] },
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          end: { line: lineIndex, character: m.indices![1][1] },
         }
       );
     }

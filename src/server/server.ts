@@ -13,6 +13,7 @@ import { hoverProvider } from "./hover";
 import { definitionProvider } from "./definition";
 import { referenceProvider } from "./reference";
 import { completionProvider } from "./completion";
+import { renameProvider } from "./rename";
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -48,7 +49,7 @@ connection.onHover(hoverProvider);
 connection.onDefinition(definitionProvider);
 connection.onReferences(referenceProvider);
 connection.onCompletion(completionProvider(documents));
-// TODO: rename
+connection.onRenameRequest(renameProvider);
 
 connection.onRequest(
   "code-anchor/init",
