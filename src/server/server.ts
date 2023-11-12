@@ -47,10 +47,15 @@ connection.onRequest(
   async (params: { files: string[]; folders: string[] }) => {
     console.log(`init ${params.files.length} files`);
     await loadAll(params.files, (uri, text) => {
-      state.scanFile(uri, text, {
-        def: defaultDefinitionPattern,
-        ref: defaultReferencePattern,
-      });
+      state.scanFile(
+        uri,
+        text,
+        {
+          def: defaultDefinitionPattern,
+          ref: defaultReferencePattern,
+        },
+        { override: false }
+      );
     });
     console.log(`init done`);
     // re-highlight all files
@@ -66,19 +71,29 @@ documents.listen(connection);
 documents.onDidOpen((event) => {
   console.log(`open ${event.document.uri}`);
   const text = event.document.getText();
-  state.scanFile(event.document.uri, text, {
-    def: defaultDefinitionPattern,
-    ref: defaultReferencePattern,
-  });
+  state.scanFile(
+    event.document.uri,
+    text,
+    {
+      def: defaultDefinitionPattern,
+      ref: defaultReferencePattern,
+    },
+    { override: true }
+  );
 });
 documents.onDidChangeContent(
   debounce(200, (change) => {
     console.log(`change ${change.document.uri}`);
     // TODO: only update lines that changed
-    state.scanFile(change.document.uri, change.document.getText(), {
-      def: defaultDefinitionPattern,
-      ref: defaultReferencePattern,
-    });
+    state.scanFile(
+      change.document.uri,
+      change.document.getText(),
+      {
+        def: defaultDefinitionPattern,
+        ref: defaultReferencePattern,
+      },
+      { override: true }
+    );
   })
 );
 

@@ -57,19 +57,42 @@ export class State {
   /**
    * Scan for definitions and references in the given text.
    * Update the state.
+   * If `override` is `true`, clear all defs and refs in this line.
    */
-  scanFile(uri: string, text: string, patterns: { def: RegExp; ref: RegExp }) {
+  scanFile(
+    uri: string,
+    text: string,
+    patterns: { def: RegExp; ref: RegExp },
+    options: {
+      override: boolean;
+    }
+  ) {
+    if (options.override) {
+      // defs
+      (this.uri2defs.get(uri) ?? []).forEach((d) => {
+        this.name2defs.delete(d.name);
+      });
+      this.uri2defs.set(uri, []);
+
+      // refs
+      this.uri2refs.set(uri, []);
+    }
+
     text.split("\n").forEach((line, lineIndex) => {
       // defs
       this.matchLine(line, lineIndex, patterns.def, (name, range) => {
+        // console.log(`found def: ${JSON.stringify(name)}`);
         this.appendDefinition(uri, name, range);
       });
 
       // refs
       this.matchLine(line, lineIndex, patterns.ref, (name, range) => {
+        // console.log(`found ref: ${JSON.stringify(name)}`);
         this.appendReference(uri, name, range);
       });
     });
+
+    // TODO: update diagnostics
   }
 
   /**
