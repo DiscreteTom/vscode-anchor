@@ -9,6 +9,7 @@ import { debounce, loadAll } from "./utils";
 import { defaultDefinitionPattern, defaultReferencePattern } from "./regex";
 import { state } from "./state";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { semanticTokenProvider } from "./semanticToken";
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -21,15 +22,15 @@ connection.onInitialize((_params: InitializeParams) => {
       // completionProvider: {
       //   resolveProvider: false,
       // },
-      // semanticTokensProvider: {
-      //   legend: {
-      //     tokenTypes: ["type"],
-      //     tokenModifiers: ["defaultLibrary"],
-      //   },
-      //   full: {
-      //     delta: false, // TODO: support delta
-      //   },
-      // },
+      semanticTokensProvider: {
+        legend: {
+          tokenTypes: ["type"],
+          tokenModifiers: ["defaultLibrary"],
+        },
+        full: {
+          delta: false, // TODO: support delta
+        },
+      },
       // definitionProvider: true,
       // referencesProvider: true,
     },
@@ -40,7 +41,7 @@ connection.onInitialize((_params: InitializeParams) => {
 // registerCompletion(connection, documents, bm);
 // registerDefinition(connection, infoMap);
 // registerReference(connection, infoMap);
-// registerSemanticToken(connection, infoMap);
+connection.languages.semanticTokens.on(semanticTokenProvider);
 
 connection.onRequest(
   "code-anchor/init",
@@ -59,11 +60,11 @@ connection.onRequest(
     });
     console.log(`init done`);
     // re-highlight all files
-    // params.files.forEach((uri) => {
-    //   connection.sendNotification("semanticTokens/full", {
-    //     textDocument: { uri },
-    //   });
-    // });
+    params.files.forEach((uri) => {
+      connection.sendNotification("semanticTokens/full", {
+        textDocument: { uri },
+      });
+    });
   }
 );
 
