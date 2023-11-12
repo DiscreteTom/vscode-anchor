@@ -24,7 +24,7 @@ connection.onInitialize((_params: InitializeParams) => {
       // },
       semanticTokensProvider: {
         legend: {
-          tokenTypes: ["type"],
+          tokenTypes: ["class", "type"],
           tokenModifiers: ["defaultLibrary"],
         },
         full: {

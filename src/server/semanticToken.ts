@@ -37,9 +37,8 @@ export function semanticTokenProvider(params: SemanticTokensParams) {
       s.range.start.line, // line
       s.range.start.character, // start character
       s.range.end.character - s.range.start.character + 1, // length
-      // TODO: provide different highlight type by kind
-      0, // token type, array index of capabilities.semanticTokens.legend.tokenTypes
-      1 // token modifiers, bitmap of capabilities.semanticTokens.legend.tokenModifiers
+      s.type === Kind.def ? 0 : 1, // token type, array index of capabilities.semanticTokens.legend.tokenTypes
+      s.type === Kind.def ? 0 : 1 // token modifiers, bitmap of capabilities.semanticTokens.legend.tokenModifiers
     );
   });
   // according to the spec, the data should be encoded as the delta to the previous data
