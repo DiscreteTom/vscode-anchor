@@ -163,7 +163,11 @@ export class State {
   }
 
   refreshDiagnostic() {
-    this.uri2diagnostics.clear();
+    // clear diagnostics
+    // IMPORTANT: don't use `this.uri2diagnostics.clear()`
+    // because the `uri` is used as the key in the `connection.sendDiagnostics` call.
+    // if the uri has no diagnostics, send empty array to client to clear existing diagnostics.
+    this.uri2diagnostics.forEach((ds) => ds.splice(0, ds.length));
 
     // find duplicated definitions
     for (const [name, defs] of this.name2defs) {
