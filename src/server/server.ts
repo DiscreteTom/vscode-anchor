@@ -48,6 +48,7 @@ connection.onHover(hoverProvider);
 connection.onDefinition(definitionProvider);
 connection.onReferences(referenceProvider);
 connection.onCompletion(completionProvider(documents));
+// TODO: rename
 
 connection.onRequest(
   "code-anchor/init",
@@ -68,6 +69,10 @@ connection.onRequest(
     await loadAll(params.files, (uri, text) => {
       state.scanFile(uri, text, { override: false });
     });
+    state.refreshDiagnostic();
+    state.uri2diagnostics.forEach((diagnostics, uri) => {
+      connection.sendDiagnostics({ uri, diagnostics });
+    });
     console.log(`init done`);
   }
 );
@@ -83,6 +88,10 @@ documents.onDidChangeContent(
     // console.log(`change ${change.document.uri}`);
     state.scanFile(change.document.uri, change.document.getText(), {
       override: true,
+    });
+    state.refreshDiagnostic();
+    state.uri2diagnostics.forEach((diagnostics, uri) => {
+      connection.sendDiagnostics({ uri, diagnostics });
     });
   })
 );

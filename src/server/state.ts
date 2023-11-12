@@ -3,6 +3,7 @@ import {
   DiagnosticSeverity,
   type Diagnostic,
 } from "vscode-languageserver/node";
+import { fileUri2relative } from "./utils";
 
 export class State {
   definitionPattern?: RegExp;
@@ -47,9 +48,6 @@ export class State {
     this.uri2diagnostics.set(uri, diagnostics);
   }
 
-  /**
-   * If the definition is duplicated, append a diagnostic.
-   */
   private appendDefinition(uri: string, name: string, range: Range) {
     const uri2def = this.uri2defs.get(uri) ?? [];
     uri2def.push({ name, range });
@@ -58,14 +56,6 @@ export class State {
     const name2def = this.name2defs.get(name) ?? [];
     name2def.push({ uri, range });
     this.name2defs.set(name, name2def);
-
-    if (name2def.length > 1) {
-      this.appendDiagnostic(uri, {
-        severity: DiagnosticSeverity.Error,
-        range,
-        message: `duplicate definition: ${name}`,
-      });
-    }
   }
 
   private appendReference(uri: string, name: string, range: Range) {
@@ -117,8 +107,45 @@ export class State {
         this.appendReference(uri, name, range);
       });
     });
+  }
 
-    // TODO: update diagnostics
+  refreshDiagnostic() {
+    this.uri2diagnostics.clear();
+
+    // find duplicated definitions
+    for (const [name, defs] of this.name2defs) {
+      if (defs.length > 1) {
+        defs.forEach((def) => {
+          this.appendDiagnostic(def.uri, {
+            severity: DiagnosticSeverity.Information, // TODO: make this configurable?
+            range: def.range,
+            message: `duplicate definition: ${JSON.stringify(
+              name
+            )}, found at ${defs
+              .map(
+                (d) =>
+                  `${fileUri2relative(d.uri, this.workspaceFolders)}:${
+                    d.range.start.line + 1
+                  }:${d.range.start.character + 1}`
+              )
+              .join(", ")}`,
+          });
+        });
+      }
+    }
+
+    // find undefined references
+    for (const [uri, refs] of this.uri2refs) {
+      refs.forEach((ref) => {
+        if (!this.name2defs.has(ref.name)) {
+          this.appendDiagnostic(uri, {
+            severity: DiagnosticSeverity.Information,
+            range: ref.range,
+            message: `undefined reference: ${JSON.stringify(ref.name)}`,
+          });
+        }
+      });
+    }
   }
 
   private matchLine(
