@@ -32,7 +32,7 @@ export function semanticTokenProvider(params: SemanticTokensParams) {
     result.data.push(
       s.range.start.line, // line
       s.range.start.character, // start character
-      s.range.end.character - s.range.start.character + 1, // length
+      s.range.end.character - s.range.start.character, // length
       s.type === Kind.def ? 0 : 1, // token type, array index of capabilities.semanticTokens.legend.tokenTypes
       s.type === Kind.def ? 0 : 1 // token modifiers, bitmap of capabilities.semanticTokens.legend.tokenModifiers
     );
