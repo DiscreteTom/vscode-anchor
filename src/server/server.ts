@@ -23,7 +23,9 @@ connection.onInitialize((_params: InitializeParams) => {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       hoverProvider: true,
       completionProvider: {
-        triggerCharacters: ["@"], // TODO: make this configurable
+        // TODO: make this configurable?
+        // but we have to provide this before client send "code-anchor/init"
+        triggerCharacters: ["@"],
         resolveProvider: false,
       },
       semanticTokensProvider: {
@@ -32,7 +34,7 @@ connection.onInitialize((_params: InitializeParams) => {
           tokenModifiers: ["defaultLibrary"],
         },
         full: {
-          delta: false, // TODO: support delta
+          delta: false, // TODO: support delta?
         },
       },
       definitionProvider: true,
@@ -85,7 +87,7 @@ documents.onDidOpen((event) => {
 documents.onDidChangeContent(
   debounce(200, (change) => {
     console.log(`change ${change.document.uri}`);
-    // TODO: only update lines that changed
+    // TODO: only update lines that changed?
     state.scanFile(change.document.uri, change.document.getText(), {
       override: true,
     });
