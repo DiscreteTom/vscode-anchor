@@ -4,14 +4,6 @@ import {
   type Diagnostic,
 } from "vscode-languageserver/node";
 
-export type ScanCallback = (
-  /**
-   * The name is the content of the first capture group.
-   */
-  name: string,
-  range: Range
-) => void;
-
 export class State {
   readonly uri2diagnostics: Map<string, Diagnostic[]>;
   /**
@@ -38,7 +30,7 @@ export class State {
   /**
    * If the definition is duplicated, append a diagnostic.
    */
-  appendDefinition(uri: string, name: string, range: Range) {
+  private appendDefinition(uri: string, name: string, range: Range) {
     const uri2def = this.uri2defs.get(uri) ?? [];
     uri2def.push({ name, range });
     this.uri2defs.set(uri, uri2def);
@@ -56,7 +48,7 @@ export class State {
     }
   }
 
-  appendReference(uri: string, name: string, range: Range) {
+  private appendReference(uri: string, name: string, range: Range) {
     const refs = this.uri2refs.get(uri) ?? [];
     refs.push({ name, range });
     this.uri2refs.set(uri, refs);
@@ -67,60 +59,69 @@ export class State {
    * Update the state.
    */
   scanFile(uri: string, text: string, patterns: { def: RegExp; ref: RegExp }) {
-    // defs
-    this._scanFile(text, patterns.def, (name, range) => {
-      this.appendDefinition(uri, name, range);
-    });
-    // refs
-    this._scanFile(text, patterns.ref, (name, range) => {
-      this.appendReference(uri, name, range);
+    text.split("\n").forEach((line, lineIndex) => {
+      // defs
+      this.matchLine(line, lineIndex, patterns.def, (name, range) => {
+        this.appendDefinition(uri, name, range);
+      });
+
+      // refs
+      this.matchLine(line, lineIndex, patterns.ref, (name, range) => {
+        this.appendReference(uri, name, range);
+      });
     });
   }
 
   /**
    * If `override` is `true`, clear all defs and refs in this line.
    */
-  scanLine(
-    uri: string,
-    line: string,
-    lineIndex: number,
-    patterns: { def: RegExp; ref: RegExp },
-    override = true
-  ) {
-    if (override) {
-      // defs
-      const defsInUri = this.uri2defs.get(uri) ?? [];
-      defsInUri
-        .filter((d) => d.range.start.line === lineIndex)
-        .forEach((d) => this.name2defs.delete(d.name));
-      this.uri2defs.set(
-        uri,
-        defsInUri.filter((d) => d.range.start.line !== lineIndex)
-      );
+  // scanLine(
+  //   uri: string,
+  //   line: string,
+  //   lineIndex: number,
+  //   patterns: { def: RegExp; ref: RegExp },
+  //   override = true
+  // ) {
+  //   if (override) {
+  //     // defs
+  //     const defsInUri = this.uri2defs.get(uri) ?? [];
+  //     defsInUri
+  //       .filter((d) => d.range.start.line === lineIndex)
+  //       .forEach((d) => this.name2defs.delete(d.name));
+  //     this.uri2defs.set(
+  //       uri,
+  //       defsInUri.filter((d) => d.range.start.line !== lineIndex)
+  //     );
 
-      // refs
-      const refs = this.uri2refs.get(uri) ?? [];
-      this.uri2refs.set(
-        uri,
-        refs.filter((ref) => ref.range.start.line !== lineIndex)
-      );
-    }
+  //     // refs
+  //     const refs = this.uri2refs.get(uri) ?? [];
+  //     this.uri2refs.set(
+  //       uri,
+  //       refs.filter((ref) => ref.range.start.line !== lineIndex)
+  //     );
+  //   }
 
-    // defs
-    this._scanLine(line, lineIndex, patterns.def, (name, range) => {
-      this.appendDefinition(uri, name, range);
-    });
-    // refs
-    this._scanLine(line, lineIndex, patterns.ref, (name, range) => {
-      this.appendReference(uri, name, range);
-    });
-  }
+  //   // defs
+  //   this.matchLine(line, lineIndex, patterns.def, (name, range) => {
+  //     this.appendDefinition(uri, name, range);
+  //   });
+  //   // refs
+  //   this.matchLine(line, lineIndex, patterns.ref, (name, range) => {
+  //     this.appendReference(uri, name, range);
+  //   });
+  // }
 
-  _scanLine(
+  private matchLine(
     line: string,
     lineIndex: number,
     pattern: RegExp,
-    cb: ScanCallback
+    cb: (
+      /**
+       * The name is the content of the first capture group.
+       */
+      name: string,
+      range: Range
+    ) => void
   ) {
     for (const m of line.matchAll(pattern)) {
       cb(
@@ -133,12 +134,6 @@ export class State {
         }
       );
     }
-  }
-
-  _scanFile(text: string, pattern: RegExp, cb: ScanCallback) {
-    text.split("\n").forEach((line, lineIndex) => {
-      this._scanLine(line, lineIndex, pattern, cb);
-    });
   }
 }
 
