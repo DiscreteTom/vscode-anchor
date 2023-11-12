@@ -25,11 +25,11 @@ export async function activate(context: vscode.ExtensionContext) {
   };
 
   const clientOptions: LanguageClientOptions = {
-    // TODO
-    // documentSelector: [{ scheme: "file", language: "markdown" }],
-    // synchronize: {
-    //   fileEvents: vscode.workspace.createFileSystemWatcher("**/*.md"),
-    // },
+    documentSelector: [{ scheme: "file" }],
+    synchronize: {
+      // TODO: ignore gitignored files
+      fileEvents: vscode.workspace.createFileSystemWatcher("**/*"),
+    },
   };
 
   client = new LanguageClient(
@@ -59,6 +59,7 @@ export async function activate(context: vscode.ExtensionContext) {
     `init: filtered ${allFiles.length} files to ${files.length} files`
   );
 
+  // load all files, scan for existing defs and refs
   await client.sendRequest("code-anchor/init", {
     files,
     folders:
