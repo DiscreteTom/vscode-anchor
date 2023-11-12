@@ -69,7 +69,7 @@ export async function activate(context: vscode.ExtensionContext) {
   await client.sendRequest("code-anchor/init", {
     files,
     folders:
-      vscode.workspace.workspaceFolders?.map((f) => f.uri.toString()) ?? [],
+      vscode.workspace.workspaceFolders?.map((f) => f.uri.toString(true)) ?? [],
     definitionPattern: config.definitionPattern,
     referencePattern: config.referencePattern,
     completionPrefixPattern: config.completionPrefixPattern,
