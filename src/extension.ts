@@ -54,11 +54,12 @@ export async function activate(context: vscode.ExtensionContext) {
   const files = (await gitIgnore.filterOutIgnored(allFiles)).map((f) =>
     url.pathToFileURL(f).toString()
   );
+  // TODO: .anchorrc file?
   console.log(
     `init: filtered ${allFiles.length} files to ${files.length} files`
   );
 
-  await client.sendRequest("init", {
+  await client.sendRequest("code-anchor/init", {
     files,
     folders:
       vscode.workspace.workspaceFolders?.map((f) => f.uri.toString()) ?? [],

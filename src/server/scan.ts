@@ -1,5 +1,4 @@
-import { Range } from "vscode";
-import { Position } from "vscode";
+import type { Range } from "vscode-languageserver/node";
 
 export type ScanCallback = (
   /**
@@ -30,12 +29,12 @@ export function scanLine(
   for (const m of line.matchAll(pattern)) {
     cb(
       m[1], // the first capture group
-      new Range(
+      {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        new Position(lineIndex, m.index!),
+        start: { line: lineIndex, character: m.index! },
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        new Position(lineIndex, m.index! + m[0].length)
-      )
+        end: { line: lineIndex, character: m.index! + m[0].length },
+      }
     );
   }
 }
