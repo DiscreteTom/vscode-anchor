@@ -7,7 +7,7 @@ export function referenceProvider(params: ReferenceParams) {
     return;
   }
 
-  // TODO: use binary search
+  // TODO: sort, use binary search
   for (const d of defs) {
     if (
       d.range.start.line === params.position.line &&

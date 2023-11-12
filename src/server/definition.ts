@@ -7,7 +7,7 @@ export function definitionProvider(params: DefinitionParams) {
     return;
   }
 
-  // TODO: use binary search
+  // TODO: sort, use binary search
   for (const r of refs) {
     if (
       r.range.start.line === params.position.line &&
