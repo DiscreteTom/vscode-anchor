@@ -69,6 +69,7 @@ connection.onRequest(
     await loadAll(params.files, (uri, text) => {
       state.scanFile(uri, text, { override: false });
     });
+    connection.languages.semanticTokens.refresh();
     state.refreshDiagnostic();
     state.uri2diagnostics.forEach((diagnostics, uri) => {
       connection.sendDiagnostics({ uri, diagnostics });
@@ -89,6 +90,7 @@ documents.onDidChangeContent(
     state.scanFile(change.document.uri, change.document.getText(), {
       override: true,
     });
+    connection.languages.semanticTokens.refresh();
     state.refreshDiagnostic();
     state.uri2diagnostics.forEach((diagnostics, uri) => {
       connection.sendDiagnostics({ uri, diagnostics });
