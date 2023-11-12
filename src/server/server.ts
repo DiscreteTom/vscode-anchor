@@ -6,7 +6,6 @@ import {
   TextDocuments,
 } from "vscode-languageserver/node";
 import { debounce, loadAll } from "./utils";
-import { defaultDefinitionPattern, defaultReferencePattern } from "./regex";
 import { state } from "./state";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { semanticTokenProvider } from "./semanticToken";
@@ -50,19 +49,20 @@ connection.onCompletion(completionProvider(documents));
 
 connection.onRequest(
   "code-anchor/init",
-  async (params: { files: string[]; folders: string[] }) => {
+  async (params: {
+    files: string[];
+    folders: string[];
+    definitionPattern: string;
+    referencePattern: string;
+  }) => {
     state.setWorkspaceFolders(params.folders);
+    state.setPatterns({
+      def: params.definitionPattern,
+      ref: params.referencePattern,
+    });
     console.log(`init ${params.files.length} files`);
     await loadAll(params.files, (uri, text) => {
-      state.scanFile(
-        uri,
-        text,
-        {
-          def: defaultDefinitionPattern,
-          ref: defaultReferencePattern,
-        },
-        { override: false }
-      );
+      state.scanFile(uri, text, { override: false });
     });
     console.log(`init done`);
     // re-highlight all files
@@ -78,29 +78,15 @@ documents.listen(connection);
 documents.onDidOpen((event) => {
   console.log(`open ${event.document.uri}`);
   const text = event.document.getText();
-  state.scanFile(
-    event.document.uri,
-    text,
-    {
-      def: defaultDefinitionPattern,
-      ref: defaultReferencePattern,
-    },
-    { override: true }
-  );
+  state.scanFile(event.document.uri, text, { override: true });
 });
 documents.onDidChangeContent(
   debounce(200, (change) => {
     console.log(`change ${change.document.uri}`);
     // TODO: only update lines that changed
-    state.scanFile(
-      change.document.uri,
-      change.document.getText(),
-      {
-        def: defaultDefinitionPattern,
-        ref: defaultReferencePattern,
-      },
-      { override: true }
-    );
+    state.scanFile(change.document.uri, change.document.getText(), {
+      override: true,
+    });
   })
 );
 

@@ -2,13 +2,12 @@
 
 ## Features
 
-<!-- - Customizable anchor regex. -->
-
 - Syntax highlighting for anchors and references.
 - Completion for references.
 - Hover for details.
 - Goto definition.
 - Find all references.
+- Customizable anchor regex.
 
 ## Credit
 

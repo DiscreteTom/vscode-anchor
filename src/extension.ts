@@ -8,6 +8,7 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { TransportKind } from "vscode-languageclient/node";
 import { GitIgnore } from "cspell-gitignore";
 import * as url from "url";
+import { config } from "./config";
 
 let client: LanguageClient;
 
@@ -64,6 +65,8 @@ export async function activate(context: vscode.ExtensionContext) {
     files,
     folders:
       vscode.workspace.workspaceFolders?.map((f) => f.uri.toString()) ?? [],
+    definitionPattern: config.definitionPattern,
+    referencePattern: config.referencePattern,
   });
 }
 

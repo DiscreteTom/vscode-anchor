@@ -5,6 +5,8 @@ import {
 } from "vscode-languageserver/node";
 
 export class State {
+  definitionPattern?: RegExp;
+  referencePattern?: RegExp;
   readonly workspaceFolders: string[];
   readonly uri2diagnostics: Map<string, Diagnostic[]>;
   /**
@@ -20,6 +22,11 @@ export class State {
     this.name2defs = new Map();
     this.uri2defs = new Map();
     this.uri2refs = new Map();
+  }
+
+  setPatterns(patterns: { def: string; ref: string }) {
+    this.definitionPattern = new RegExp(patterns.def, "g");
+    this.referencePattern = new RegExp(patterns.ref, "g");
   }
 
   setWorkspaceFolders(workspaceFolders: string[]) {
@@ -69,11 +76,17 @@ export class State {
   scanFile(
     uri: string,
     text: string,
-    patterns: { def: RegExp; ref: RegExp },
     options: {
       override: boolean;
     }
   ) {
+    const definitionPattern = this.definitionPattern;
+    const referencePattern = this.referencePattern;
+
+    if (definitionPattern === undefined || referencePattern === undefined) {
+      return;
+    }
+
     if (options.override) {
       // defs
       (this.uri2defs.get(uri) ?? []).forEach((d) => {
@@ -87,13 +100,13 @@ export class State {
 
     text.split("\n").forEach((line, lineIndex) => {
       // defs
-      this.matchLine(line, lineIndex, patterns.def, (name, range) => {
+      this.matchLine(line, lineIndex, definitionPattern, (name, range) => {
         // console.log(`found def: ${JSON.stringify(name)}`);
         this.appendDefinition(uri, name, range);
       });
 
       // refs
-      this.matchLine(line, lineIndex, patterns.ref, (name, range) => {
+      this.matchLine(line, lineIndex, referencePattern, (name, range) => {
         // console.log(`found ref: ${JSON.stringify(name)}`);
         this.appendReference(uri, name, range);
       });

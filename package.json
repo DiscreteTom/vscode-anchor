@@ -18,7 +18,23 @@
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
-  "contributes": {},
+  "contributes": {
+    "configuration": {
+      "title": "Code Anchor",
+      "properties": {
+        "codeAnchor.definitionPattern": {
+          "type": "string",
+          "default": "\\[\\[(?!@)((?:.)+?)\\]\\]",
+          "markdownDescription": "Regular expression to match the definition of a code anchor. The first capture group should be the anchor name."
+        },
+        "codeAnchor.referencePattern": {
+          "type": "string",
+          "default": "\\[\\[@((?:.)+?)\\]\\]",
+          "markdownDescription": "Regular expression to match the reference of a code anchor. The first capture group should be the anchor name."
+        }
+      }
+    }
+  },
   "scripts": {
     "lint": "eslint src --ext ts",
     "test-compile": "tsc -p ./",
