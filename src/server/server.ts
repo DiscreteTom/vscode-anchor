@@ -10,6 +10,7 @@ import { defaultDefinitionPattern, defaultReferencePattern } from "./regex";
 import { state } from "./state";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { semanticTokenProvider } from "./semanticToken";
+import { hoverProvider } from "./hover";
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -18,7 +19,7 @@ connection.onInitialize((_params: InitializeParams) => {
   return {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
-      // hoverProvider: true,
+      hoverProvider: true,
       // completionProvider: {
       //   resolveProvider: false,
       // },
@@ -37,11 +38,11 @@ connection.onInitialize((_params: InitializeParams) => {
   };
 });
 
-// registerHover(connection, infoMap);
 // registerCompletion(connection, documents, bm);
 // registerDefinition(connection, infoMap);
 // registerReference(connection, infoMap);
 connection.languages.semanticTokens.on(semanticTokenProvider);
+connection.onHover(hoverProvider);
 
 connection.onRequest(
   "code-anchor/init",
