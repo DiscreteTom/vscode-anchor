@@ -3,6 +3,11 @@
   "displayName": "Code Anchor",
   "description": "",
   "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DiscreteTom/vscode-anchor"
+  },
+  "publisher": "DiscreteTom",
   "engines": {
     "vscode": "^1.84.0"
   },
@@ -10,14 +15,14 @@
     "Other"
   ],
   "activationEvents": [],
-  "main": "./dist/main.min.js",
+  "main": "./dist/extension.js",
   "contributes": {},
   "scripts": {
     "lint": "eslint src --ext ts",
     "test-compile": "tsc -p ./",
     "pretest": "yarn test-compile && yarn lint",
     "test": "node ./out/test/runTest.js",
-    "build": "esbuild ./src/extension.ts --sourcemap --minify --bundle --outfile=dist/main.min.js --external:vscode --format=cjs --platform=node",
+    "build": "esbuild ./src/extension.ts ./src/server/server.ts --sourcemap --minify --bundle --outdir=dist --external:vscode --format=cjs --platform=node",
     "watch": "yarn build --watch",
     "vscode:prepublish": "yarn test && yarn build",
     "package": "vsce package"
