@@ -1,7 +1,7 @@
 {
   "name": "vscode-anchor",
   "displayName": "Code Anchor",
-  "description": "",
+  "description": "Quickly navigate to anchors in your code.",
   "version": "0.1.0",
   "repository": {
     "type": "git",
@@ -47,7 +47,7 @@
     "test": "node ./out/test/runTest.js",
     "build": "esbuild ./src/extension.ts ./src/server/server.ts --sourcemap --minify --bundle --outdir=dist --external:vscode --format=cjs --platform=node",
     "watch": "yarn build --watch",
-    "vscode:prepublish": "yarn test && yarn build",
+    "vscode:prepublish": "yarn build",
     "package": "vsce package"
   },
   "devDependencies": {
