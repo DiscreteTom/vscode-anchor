@@ -17,6 +17,7 @@ export function completionProvider(documents: TextDocuments<TextDocument>) {
       end: { line: params.position.line, character: params.position.character },
     });
 
+    // TODO: make this configurable
     const prefixMatch = /\[\[@/.exec(prefix);
     if (prefixMatch === null) {
       return [];
