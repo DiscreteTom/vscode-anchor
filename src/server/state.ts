@@ -5,6 +5,7 @@ import {
 } from "vscode-languageserver/node";
 
 export class State {
+  readonly workspaceFolders: string[];
   readonly uri2diagnostics: Map<string, Diagnostic[]>;
   /**
    * Duplicated definitions are also recorded but will send diagnostics.
@@ -14,10 +15,16 @@ export class State {
   readonly uri2refs: Map<string, { name: string; range: Range }[]>;
 
   constructor() {
+    this.workspaceFolders = [];
     this.uri2diagnostics = new Map();
     this.name2defs = new Map();
     this.uri2defs = new Map();
     this.uri2refs = new Map();
+  }
+
+  setWorkspaceFolders(workspaceFolders: string[]) {
+    this.workspaceFolders.splice(0, this.workspaceFolders.length);
+    this.workspaceFolders.push(...workspaceFolders);
   }
 
   // TODO: accept multi diagnostics
