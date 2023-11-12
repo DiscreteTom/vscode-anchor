@@ -121,45 +121,6 @@ export class State {
     // TODO: update diagnostics
   }
 
-  /**
-   * If `override` is `true`, clear all defs and refs in this line.
-   */
-  // scanLine(
-  //   uri: string,
-  //   line: string,
-  //   lineIndex: number,
-  //   patterns: { def: RegExp; ref: RegExp },
-  //   override = true
-  // ) {
-  //   if (override) {
-  //     // defs
-  //     const defsInUri = this.uri2defs.get(uri) ?? [];
-  //     defsInUri
-  //       .filter((d) => d.range.start.line === lineIndex)
-  //       .forEach((d) => this.name2defs.delete(d.name));
-  //     this.uri2defs.set(
-  //       uri,
-  //       defsInUri.filter((d) => d.range.start.line !== lineIndex)
-  //     );
-
-  //     // refs
-  //     const refs = this.uri2refs.get(uri) ?? [];
-  //     this.uri2refs.set(
-  //       uri,
-  //       refs.filter((ref) => ref.range.start.line !== lineIndex)
-  //     );
-  //   }
-
-  //   // defs
-  //   this.matchLine(line, lineIndex, patterns.def, (name, range) => {
-  //     this.appendDefinition(uri, name, range);
-  //   });
-  //   // refs
-  //   this.matchLine(line, lineIndex, patterns.ref, (name, range) => {
-  //     this.appendReference(uri, name, range);
-  //   });
-  // }
-
   private matchLine(
     line: string,
     lineIndex: number,

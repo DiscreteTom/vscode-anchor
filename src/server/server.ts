@@ -80,14 +80,13 @@ connection.onRequest(
 
 documents.listen(connection);
 documents.onDidOpen((event) => {
-  console.log(`open ${event.document.uri}`);
+  // console.log(`open ${event.document.uri}`);
   const text = event.document.getText();
   state.scanFile(event.document.uri, text, { override: true });
 });
 documents.onDidChangeContent(
   debounce(200, (change) => {
-    console.log(`change ${change.document.uri}`);
-    // TODO: only update lines that changed?
+    // console.log(`change ${change.document.uri}`);
     state.scanFile(change.document.uri, change.document.getText(), {
       override: true,
     });

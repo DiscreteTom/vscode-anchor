@@ -15,7 +15,7 @@ export function semanticTokenProvider(params: SemanticTokensParams) {
     type: Kind.ref,
   }));
   if (defs.length === 0 && refs.length === 0) {
-    console.log(`no defs or refs in ${params.textDocument.uri}`);
+    // console.log(`no defs or refs in ${params.textDocument.uri}`);
     return { data: [] };
   }
 
