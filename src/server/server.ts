@@ -5,8 +5,7 @@ import {
   TextDocumentSyncKind,
   TextDocuments,
 } from "vscode-languageserver/node";
-import { loadAll } from "./utils";
-import { scanFile } from "./scan";
+import { debounce, loadAll } from "./utils";
 import { defaultDefinitionPattern, defaultReferencePattern } from "./regex";
 import { state } from "./state";
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -28,7 +27,7 @@ connection.onInitialize((_params: InitializeParams) => {
       //     tokenModifiers: ["defaultLibrary"],
       //   },
       //   full: {
-      //     delta: false,
+      //     delta: false, // TODO: support delta
       //   },
       // },
       // definitionProvider: true,
@@ -48,13 +47,9 @@ connection.onRequest(
   async (params: { files: string[]; folders: string[] }) => {
     console.log(`init ${params.files.length} files`);
     await loadAll(params.files, (uri, text) => {
-      // defs
-      scanFile(text, defaultDefinitionPattern, (name, range) => {
-        state.appendDefinition(name, uri, range);
-      });
-      // refs
-      scanFile(text, defaultReferencePattern, (name, range) => {
-        state.appendReference(name, uri, range);
+      state.scanFile(uri, text, {
+        def: defaultDefinitionPattern,
+        ref: defaultReferencePattern,
       });
     });
     console.log(`init done`);
@@ -68,16 +63,23 @@ connection.onRequest(
 );
 
 documents.listen(connection);
-// documents.onDidOpen((event) => {
-//   console.log(`open ${event.document.uri}`);
-//   config.files.set(event.document.uri, event.document.getText());
-//   scan(event.document.uri, true);
-// });
-// documents.onDidChangeContent(
-//   debounce((change) => {
-//     console.log(`change ${change.document.uri}`);
-//     config.files.set(change.document.uri, change.document.getText());
-//     scan(change.document.uri, true);
-//   }, 200)
-// );
+documents.onDidOpen((event) => {
+  console.log(`open ${event.document.uri}`);
+  const text = event.document.getText();
+  state.scanFile(event.document.uri, text, {
+    def: defaultDefinitionPattern,
+    ref: defaultReferencePattern,
+  });
+});
+documents.onDidChangeContent(
+  debounce(200, (change) => {
+    console.log(`change ${change.document.uri}`);
+    // TODO: only update lines that changed
+    state.scanFile(change.document.uri, change.document.getText(), {
+      def: defaultDefinitionPattern,
+      ref: defaultReferencePattern,
+    });
+  })
+);
+
 connection.listen();
