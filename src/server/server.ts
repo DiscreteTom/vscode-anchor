@@ -54,11 +54,13 @@ connection.onRequest(
     folders: string[];
     definitionPattern: string;
     referencePattern: string;
+    completionPrefixPattern: string;
   }) => {
     state.setWorkspaceFolders(params.folders);
     state.setPatterns({
       def: params.definitionPattern,
       ref: params.referencePattern,
+      completionPrefix: params.completionPrefixPattern,
     });
     console.log(`init ${params.files.length} files`);
     await loadAll(params.files, (uri, text) => {

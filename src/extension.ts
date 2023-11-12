@@ -67,6 +67,7 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.workspace.workspaceFolders?.map((f) => f.uri.toString()) ?? [],
     definitionPattern: config.definitionPattern,
     referencePattern: config.referencePattern,
+    completionPrefixPattern: config.completionPrefixPattern,
   });
 }
 

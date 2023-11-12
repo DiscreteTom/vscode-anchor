@@ -7,6 +7,7 @@ import {
 export class State {
   definitionPattern?: RegExp;
   referencePattern?: RegExp;
+  completionPrefixPattern?: RegExp;
   readonly workspaceFolders: string[];
   readonly uri2diagnostics: Map<string, Diagnostic[]>;
   /**
@@ -24,9 +25,14 @@ export class State {
     this.uri2refs = new Map();
   }
 
-  setPatterns(patterns: { def: string; ref: string }) {
+  setPatterns(patterns: {
+    def: string;
+    ref: string;
+    completionPrefix: string;
+  }) {
     this.definitionPattern = new RegExp(patterns.def, "g");
     this.referencePattern = new RegExp(patterns.ref, "g");
+    this.completionPrefixPattern = new RegExp(patterns.completionPrefix);
   }
 
   setWorkspaceFolders(workspaceFolders: string[]) {

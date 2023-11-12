@@ -12,4 +12,9 @@ export const config = {
       .getConfiguration("codeAnchor")
       .get("referencePattern") as string;
   },
+  get completionPrefixPattern() {
+    return vscode.workspace
+      .getConfiguration("codeAnchor")
+      .get("completionPrefixPattern") as string;
+  },
 };

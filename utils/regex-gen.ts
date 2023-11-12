@@ -32,6 +32,8 @@ const defaultReferencePattern = compose(
   "g"
 );
 
+const defaultCompletionPrefixPattern = compose(({ escape }) => escape("[[@"));
+
 const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
 pkg.contributes.configuration.properties[
   "codeAnchor.definitionPattern"
@@ -39,5 +41,8 @@ pkg.contributes.configuration.properties[
 pkg.contributes.configuration.properties[
   "codeAnchor.referencePattern"
 ].default = defaultReferencePattern.source;
+pkg.contributes.configuration.properties[
+  "codeAnchor.completionPrefixPattern"
+].default = defaultCompletionPrefixPattern.source;
 
 fs.writeFileSync("package.json", JSON.stringify(pkg, undefined, 2));

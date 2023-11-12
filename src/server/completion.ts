@@ -10,6 +10,9 @@ import { fileUri2relative } from "./utils";
 
 export function completionProvider(documents: TextDocuments<TextDocument>) {
   return (params: CompletionParams) => {
+    const completionPrefixPattern = state.completionPrefixPattern;
+    if (completionPrefixPattern === undefined) return [];
+
     // get prefix in current line
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const prefix = documents.get(params.textDocument.uri)!.getText({
@@ -17,8 +20,7 @@ export function completionProvider(documents: TextDocuments<TextDocument>) {
       end: { line: params.position.line, character: params.position.character },
     });
 
-    // TODO: make this configurable
-    const prefixMatch = /\[\[@/.exec(prefix);
+    const prefixMatch = completionPrefixPattern.exec(prefix);
     if (prefixMatch === null) {
       return [];
     }

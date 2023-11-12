@@ -31,6 +31,11 @@
           "type": "string",
           "default": "\\[\\[@((?:.)+?)\\]\\]",
           "markdownDescription": "Regular expression to match the reference of a code anchor. The first capture group should be the anchor name."
+        },
+        "codeAnchor.completionPrefixPattern": {
+          "type": "string",
+          "default": "\\[\\[@",
+          "markdownDescription": "Regular expression to match the prefix of a code anchor reference completion."
         }
       }
     }
