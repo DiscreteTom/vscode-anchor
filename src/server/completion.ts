@@ -37,9 +37,9 @@ export function completionProvider(documents: TextDocuments<TextDocument>) {
         label: name,
         kind: CompletionItemKind.Constant,
         labelDetails: {
-          description: "Code Anchor definition",
+          description: fileUri2relative(def[0].uri, state.workspaceFolders),
         },
-        detail: fileUri2relative(def[0].uri, state.workspaceFolders),
+        detail: "Code Anchor definition",
         filterText: name,
       });
     }
