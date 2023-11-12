@@ -1,5 +1,7 @@
 # Code Anchor for VSCode
 
+Quickly navigate to anchors in your code.
+
 ## Features
 
 - Syntax highlighting for anchors and references.
