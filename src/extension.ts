@@ -31,6 +31,11 @@ export async function activate(context: vscode.ExtensionContext) {
       // TODO: ignore gitignored files
       fileEvents: vscode.workspace.createFileSystemWatcher("**/*"),
     },
+    // https://github.com/microsoft/vscode/issues/144698#issuecomment-1062751705
+    uriConverters: {
+      code2Protocol: (uri: vscode.Uri) => uri.toString(true),
+      protocol2Code: (uri: string) => vscode.Uri.parse(uri),
+    },
   };
 
   client = new LanguageClient(
