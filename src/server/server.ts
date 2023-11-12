@@ -12,6 +12,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { semanticTokenProvider } from "./semanticToken";
 import { hoverProvider } from "./hover";
 import { definitionProvider } from "./definition";
+import { referenceProvider } from "./reference";
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -34,16 +35,16 @@ connection.onInitialize((_params: InitializeParams) => {
         },
       },
       definitionProvider: true,
-      // referencesProvider: true,
+      referencesProvider: true,
     },
   };
 });
 
 // registerCompletion(connection, documents, bm);
-// registerReference(connection, infoMap);
 connection.languages.semanticTokens.on(semanticTokenProvider);
 connection.onHover(hoverProvider);
 connection.onDefinition(definitionProvider);
+connection.onReferences(referenceProvider);
 
 connection.onRequest(
   "code-anchor/init",
