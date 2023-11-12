@@ -1,5 +1,5 @@
 import type { HoverParams } from "vscode-languageserver/node";
-import { buildMarkupContent } from "./utils";
+import { buildMarkupContent, fileUri2relative } from "./utils";
 import { Kind } from "./model";
 import { state } from "./state";
 
@@ -51,7 +51,12 @@ export function hoverProvider(params: HoverParams) {
               ["```ts", JSON.stringify(s.name), "```"],
               def === undefined
                 ? [`The anchor for ${JSON.stringify(s.name)} is not defined`]
-                : [],
+                : [
+                    `From: [${fileUri2relative(
+                      def.uri,
+                      state.workspaceFolders
+                    )}](${def.uri}).`,
+                  ],
               def === undefined
                 ? [`Code Anchor reference.`]
                 : [
