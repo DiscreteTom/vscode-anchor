@@ -16,6 +16,24 @@ Quickly navigate to anchors in your code.
 - Find all references.
 - Customizable anchor regex.
 
+## Usage
+
+Create a definition/anchor in any file using the following syntax:
+
+```
+[[some words here]]
+```
+
+Then reference it in any file:
+
+```
+[[@some words here]]
+```
+
+## Customize
+
+You can customize the definition/reference syntax in the extension settings by providing a regex pattern.
+
 ## Credit
 
 Inspired by [bimark](https://github.com/DiscreteTom/bimark).
