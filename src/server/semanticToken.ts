@@ -3,11 +3,7 @@ import type {
   SemanticTokensParams,
 } from "vscode-languageserver/node";
 import { state } from "./state";
-
-enum Kind {
-  def,
-  ref,
-}
+import { Kind } from "./model";
 
 export function semanticTokenProvider(params: SemanticTokensParams) {
   const defs = (state.uri2defs.get(params.textDocument.uri) ?? []).map((d) => ({
