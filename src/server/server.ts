@@ -11,6 +11,7 @@ import { state } from "./state";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { semanticTokenProvider } from "./semanticToken";
 import { hoverProvider } from "./hover";
+import { definitionProvider } from "./definition";
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -32,17 +33,17 @@ connection.onInitialize((_params: InitializeParams) => {
           delta: false, // TODO: support delta
         },
       },
-      // definitionProvider: true,
+      definitionProvider: true,
       // referencesProvider: true,
     },
   };
 });
 
 // registerCompletion(connection, documents, bm);
-// registerDefinition(connection, infoMap);
 // registerReference(connection, infoMap);
 connection.languages.semanticTokens.on(semanticTokenProvider);
 connection.onHover(hoverProvider);
+connection.onDefinition(definitionProvider);
 
 connection.onRequest(
   "code-anchor/init",
