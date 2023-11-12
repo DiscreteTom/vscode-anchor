@@ -69,12 +69,6 @@ connection.onRequest(
       state.scanFile(uri, text, { override: false });
     });
     console.log(`init done`);
-    // re-highlight all files
-    params.files.forEach((uri) => {
-      connection.sendNotification("semanticTokens/full", {
-        textDocument: { uri },
-      });
-    });
   }
 );
 
