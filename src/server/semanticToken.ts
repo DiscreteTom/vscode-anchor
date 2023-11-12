@@ -50,7 +50,7 @@ export function semanticTokenProvider(params: SemanticTokensParams) {
       // delta start character, only if the line is the same
       result.data[i + 1] = result.data[i + 1] - result.data[i - 4];
   }
-  console.log(result.data);
+  // console.log(result.data);
 
   return result;
 }
