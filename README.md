@@ -7,6 +7,10 @@ Quickly navigate to anchors in your code.
 
 ![demo](./img/demo.png)
 
+## Installation
+
+Via VSCode Marketplace: [Code Anchor](https://marketplace.visualstudio.com/items?itemName=DiscreteTom.code-anchor).
+
 ## Features
 
 - Syntax highlighting for anchors and references.
