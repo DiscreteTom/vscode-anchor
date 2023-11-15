@@ -6,8 +6,6 @@ import type {
 } from "vscode-languageclient/node";
 import { LanguageClient } from "vscode-languageclient/node";
 import { TransportKind } from "vscode-languageclient/node";
-import { GitIgnore } from "cspell-gitignore";
-import * as url from "url";
 import { config } from "./config";
 
 let client: LanguageClient;
@@ -36,6 +34,12 @@ export async function activate(context: vscode.ExtensionContext) {
       code2Protocol: (uri: vscode.Uri) => uri.toString(true),
       protocol2Code: (uri: string) => vscode.Uri.parse(uri),
     },
+    initializationOptions: {
+      definitionPattern: config.definitionPattern,
+      referencePattern: config.referencePattern,
+      completionPrefixPattern: config.completionPrefixPattern,
+      vscodeRootPath: vscode.env.appRoot,
+    },
   };
 
   client = new LanguageClient(
@@ -45,35 +49,18 @@ export async function activate(context: vscode.ExtensionContext) {
     clientOptions
   );
 
-  // this will also launch the server
-  await client.start();
+  await client.start(); // this will also launch the server
 
-  // send initial file list & workspace folders, ignore files that are in .gitignore
-  /** file path string list. */
-  const allFiles = (await vscode.workspace.findFiles("**/*")).map(
-    (f) => f.fsPath
-  );
-  const gitIgnore = new GitIgnore(
-    vscode.workspace.workspaceFolders?.map((f) => f.uri.fsPath) ?? []
-  );
-  /** uri string list */
-  const files = (await gitIgnore.filterOutIgnored(allFiles)).map((f) =>
-    url.pathToFileURL(f).toString()
-  );
-  // TODO: .anchorrc file?
-  console.log(
-    `init: filtered ${allFiles.length} files to ${files.length} files`
-  );
-
-  // load all files, scan for existing defs and refs
-  await client.sendRequest("code-anchor/init", {
-    files,
-    folders:
-      vscode.workspace.workspaceFolders?.map((f) => f.uri.toString(true)) ?? [],
-    definitionPattern: config.definitionPattern,
-    referencePattern: config.referencePattern,
-    completionPrefixPattern: config.completionPrefixPattern,
-  });
+  // TODO: remove this?
+  // init language server
+  // await client.sendRequest("code-anchor/init", {
+  //   folders:
+  //     vscode.workspace.workspaceFolders?.map((f) => f.uri.toString(true)) ?? [],
+  //   definitionPattern: config.definitionPattern,
+  //   referencePattern: config.referencePattern,
+  //   completionPrefixPattern: config.completionPrefixPattern,
+  //   vscodeRootPath: vscode.env.appRoot,
+  // });
 }
 
 export function deactivate(): Thenable<void> | undefined {
