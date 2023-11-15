@@ -25,7 +25,7 @@
       "properties": {
         "codeAnchor.definitionPattern": {
           "type": "string",
-          "default": "\\[\\[(?!@)((?:.)+?)\\]\\]",
+          "default": "\\[\\[([^@](?:.)*?)\\]\\]",
           "markdownDescription": "Regular expression to match the definition of a code anchor. The first capture group should be the anchor name."
         },
         "codeAnchor.referencePattern": {

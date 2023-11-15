@@ -4,14 +4,16 @@ import * as fs from "fs";
 // Usage: ts-node utils/regex-gen.ts
 
 const defaultDefinitionPattern = compose(
-  ({ concat, escape, some, capture, lookahead }) =>
+  ({ concat, escape, any, capture, not }) =>
     concat(
       escape("[["), // open quote
-      lookahead(escape("@"), { negative: true }), // prevent `[[@` which is a reference
       // wrap the content in the 1st capture group
       capture(
-        // at least 1, non greedy to prevent matching the close quote
-        some(/./, { greedy: false })
+        concat(
+          not(escape("@")), // the first character cannot be @, otherwise it's a reference
+          // zero or many other chars, non greedy to prevent matching the close quote
+          any(/./, { greedy: false })
+        )
       ),
       escape("]]") // close quote
     ),
