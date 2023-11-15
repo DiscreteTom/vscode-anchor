@@ -5,7 +5,7 @@ import {
   TextDocumentSyncKind,
   TextDocuments,
 } from "vscode-languageserver/node";
-import { debounce, loadAll } from "./utils";
+import { debounce } from "./utils";
 import { state } from "./state";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { semanticTokenProvider } from "./semanticToken";
@@ -18,14 +18,27 @@ import { renameProvider } from "./rename";
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
-connection.onInitialize((_params: InitializeParams) => {
+connection.onInitialize((params: InitializeParams) => {
+  state.setWorkspaceFolders(params.workspaceFolders?.map((f) => f.uri) ?? []);
+  console.log(state.workspaceFolders);
+  const options = params.initializationOptions as {
+    definitionPattern: string;
+    referencePattern: string;
+    completionPrefixPattern: string;
+    vscodeRootPath: string;
+  };
+  console.log(options);
+  state.setPatterns({
+    def: options.definitionPattern,
+    ref: options.referencePattern,
+    completionPrefix: options.completionPrefixPattern,
+  });
   return {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       hoverProvider: true,
       completionProvider: {
-        // TODO: make this configurable?
-        // but we have to provide this before client send "code-anchor/init"
+        // TODO: make this configurable
         triggerCharacters: ["@"],
         resolveProvider: false,
       },
@@ -52,33 +65,44 @@ connection.onReferences(referenceProvider);
 connection.onCompletion(completionProvider(documents));
 connection.onRenameRequest(renameProvider);
 
-connection.onRequest(
-  "code-anchor/init",
-  async (params: {
-    files: string[];
-    folders: string[];
-    definitionPattern: string;
-    referencePattern: string;
-    completionPrefixPattern: string;
-  }) => {
-    state.setWorkspaceFolders(params.folders);
-    state.setPatterns({
-      def: params.definitionPattern,
-      ref: params.referencePattern,
-      completionPrefix: params.completionPrefixPattern,
-    });
-    console.log(`init ${params.files.length} files`);
-    await loadAll(params.files, (uri, text) => {
-      state.scanFile(uri, text, { override: false });
-    });
-    connection.languages.semanticTokens.refresh();
-    state.refreshDiagnostic();
-    state.uri2diagnostics.forEach((diagnostics, uri) => {
-      connection.sendDiagnostics({ uri, diagnostics });
-    });
-    console.log(`init done`);
-  }
-);
+connection.onRequest("code-anchor/init", async () => {
+  // const folderPaths = state.workspaceFolders.map((f) => url.fileURLToPath(f));
+  // const isWin = /^win/.test(process.platform);
+  // const bin = (await getBinPath(params.vscodeRootPath))!;
+  // folderPaths.forEach((p) => {
+  //   console.log(path.join(p));
+  //   search({
+  //     bin,
+  //     folder: p,
+  //     regex: `"${state.referencePattern!.source}"`,
+  //     // env: {
+  //     //   ...(process.env as Record<string, string>),
+  //     //   // https://github.com/nodejs/node/issues/34667#issuecomment-672863358
+  //     //   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  //     //   [Object.keys(process.env).find((x) => x.toUpperCase() === "PATH")!]:
+  //     //     process.env.PATH + path.delimiter + params.rgFolderPath,
+  //     // },
+  //   })
+  //     .then((r) => {
+  //       console.log(`done for ${p}`);
+  //       console.log(r);
+  //     })
+  //     .catch((e) => {
+  //       console.log(`error for ${p}`);
+  //       console.error(e);
+  //     });
+  // });
+  // console.log(`init ${params.files.length} files`);
+  // await loadAll(params.files, (uri, text) => {
+  //   state.scanFile(uri, text, { override: false });
+  // });
+  connection.languages.semanticTokens.refresh();
+  state.refreshDiagnostic();
+  state.uri2diagnostics.forEach((diagnostics, uri) => {
+    connection.sendDiagnostics({ uri, diagnostics });
+  });
+  console.log(`init done`);
+});
 
 documents.listen(connection);
 documents.onDidOpen((event) => {
