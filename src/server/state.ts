@@ -67,7 +67,16 @@ export class State {
       definitionRegex,
       referenceRegex,
     });
-    await this.folderScanner.init(props.vscodeRootPath);
+
+    // if folder scanner init failed, we can still use file scanner
+    // so we need to catch the error here
+    try {
+      await this.folderScanner.init(props.vscodeRootPath);
+    } catch (e) {
+      // delete folder scanner
+      this.folderScanner = undefined;
+      console.log(e);
+    }
 
     // scan workspace folders
     await this.refresh();
@@ -77,16 +86,22 @@ export class State {
    * Re-scan workspace folders.
    */
   async refresh() {
-    console.time("refresh");
+    // clear all
     this.clearDiagnostics();
     this.uri2defs.clear();
     this.uri2refs.clear();
     this.name2defs.clear();
 
+    const folderScanner = this.folderScanner;
+    if (folderScanner === undefined) {
+      console.log(`refresh: no folder scanner`);
+      return;
+    }
+
+    console.time("refresh");
     (
       await Promise.all(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.workspaceFolders.map((f) => this.folderScanner!.scanFolder(f))
+        this.workspaceFolders.map((f) => folderScanner.scanFolder(f))
       )
     ).forEach((rr) => rr.forEach((r) => this.appendResult(r)));
     console.log(`finish scan workspace folders`);
@@ -113,7 +128,6 @@ export class State {
     else this.appendReference(r.uri, r.name, r.range, r.nameRange);
   }
 
-  // TODO: accept multi diagnostics
   appendDiagnostic(uri: string, diagnostic: Omit<Diagnostic, "source">) {
     const diagnostics = this.uri2diagnostics.get(uri) ?? [];
     diagnostics.push({ ...diagnostic, source: "Code Anchor" });
