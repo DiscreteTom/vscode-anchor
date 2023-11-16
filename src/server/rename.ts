@@ -138,35 +138,5 @@ export const renameProvider: ServerRequestHandler<
       }
     });
   });
-
-  // also update state
-  // first, ensure the file scanner is ready
-  const scanner = state.fileScanner;
-  if (scanner !== undefined) {
-    // we need to update current file because rename doesn't trigger [[@onDidChangeContent]]
-    // other files' update will be triggered by [[@onDidChangeContent]]
-    // sort edits in reverse order so we can apply them from the end
-    const edits = res.changes[params.textDocument.uri].sort((b, a) =>
-      a.range.start.line === b.range.start.line
-        ? a.range.start.character - b.range.start.character
-        : a.range.start.line - b.range.start.line
-    );
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const lines = scanner.documents
-      .get(params.textDocument.uri)! // current file is opened so must be managed by documents
-      .getText()
-      .split("\n");
-    edits.forEach(
-      (e) =>
-        (lines[e.range.start.line] =
-          lines[e.range.start.line].slice(0, e.range.start.character) +
-          e.newText +
-          lines[e.range.end.line].slice(e.range.end.character))
-    );
-
-    // re-scan current file
-    state.updateFile(params.textDocument.uri, lines.join("\n"));
-  }
-
   return res;
 };

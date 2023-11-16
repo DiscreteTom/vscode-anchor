@@ -8,7 +8,6 @@ import {
   TextDocumentSyncKind,
   TextDocuments,
 } from "vscode-languageserver/node";
-import { debounce } from "./utils";
 import { state } from "./state";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { semanticTokenProvider } from "./semanticToken";
@@ -103,13 +102,21 @@ documents.onDidOpen((_event) => {
   // since we already scan all files in the workspace, we don't need to update the file here
   // state.updateFile(event.document.uri);
 });
+
+const timeoutMap = new Map<string, ReturnType<typeof setTimeout>>();
 // [[onDidChangeContent]]
-documents.onDidChangeContent(
-  debounce(200, (change) => {
-    console.log(`change ${change.document.uri}`);
-    state.updateFile(change.document.uri, change.document.getText());
-    updateClient();
-  })
-);
+documents.onDidChangeContent((change) => {
+  // uri-aware debounce
+  const timeoutHandle = timeoutMap.get(change.document.uri);
+  if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
+  timeoutMap.set(
+    change.document.uri,
+    setTimeout(() => {
+      console.log(`change (debounced) ${change.document.uri}`);
+      state.updateFile(change.document.uri, change.document.getText());
+      updateClient();
+    }, 200)
+  );
+});
 
 connection.listen();

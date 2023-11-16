@@ -14,19 +14,6 @@ export function buildMarkupContent(content: string[][]) {
   return content.map((l) => l.join("\n")).join("\n\n---\n\n"); // separator
 }
 
-export function debounce<Params extends unknown[]>(
-  delay: number,
-  cb: (...args: Params) => void
-) {
-  let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
-  return (...args: Params) => {
-    clearTimeout(timeoutHandle);
-    timeoutHandle = setTimeout(() => {
-      cb(...args);
-    }, delay);
-  };
-}
-
 /**
  * Compare a position and a range.
  * @returns -1 if pos is before range, 0 if pos is in range, 1 if pos is after range

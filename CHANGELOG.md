@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.2.2
+
+- Fix: rename will refresh all related files.
+
 ## v0.2.1
 
 - Feat: rename anchors. [#2](https://github.com/DiscreteTom/vscode-anchor/issues/2)
