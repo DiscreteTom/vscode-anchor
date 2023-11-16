@@ -26,12 +26,12 @@
         "codeAnchor.definitionPattern": {
           "type": "string",
           "default": "\\[\\[([^@](?:.)*?)\\]\\]",
-          "markdownDescription": "Regular expression to match the definition of a code anchor. The first capture group should be the anchor name."
+          "markdownDescription": "Regular expression to match the definition of a code anchor. The first capture group should be the anchor name. This should be valid in both JavaScript regex and Rust regex."
         },
         "codeAnchor.referencePattern": {
           "type": "string",
           "default": "\\[\\[@((?:.)+?)\\]\\]",
-          "markdownDescription": "Regular expression to match the reference of a code anchor. The first capture group should be the anchor name."
+          "markdownDescription": "Regular expression to match the reference of a code anchor. The first capture group should be the anchor name. This should be valid in both JavaScript regex and Rust regex."
         },
         "codeAnchor.completionPrefixPattern": {
           "type": "string",
