@@ -85,7 +85,7 @@ export class RipGrepScanner {
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const regexMatch = regex.exec(match.match.text)!;
-        res.push(this.constructResult(uri, Kind.def, line, match, regexMatch));
+        res.push(this.constructResult(uri, kind, line, match, regexMatch));
       });
     });
 
