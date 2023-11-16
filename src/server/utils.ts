@@ -27,13 +27,28 @@ export function debounce<Params extends unknown[]>(
   };
 }
 
+/**
+ * Compare a position and a range.
+ * @returns -1 if pos is before range, 0 if pos is in range, 1 if pos is after range
+ */
+export function comparePosAndRange(pos: Position, range: Range) {
+  if (pos.line < range.start.line) {
+    return -1;
+  }
+  if (pos.line > range.end.line) {
+    return 1;
+  }
+  if (pos.character < range.start.character) {
+    return -1;
+  }
+  if (pos.character > range.end.character) {
+    return 1;
+  }
+  return 0;
+}
+
 export function posInRange(pos: Position, range: Range) {
-  return (
-    pos.line >= range.start.line &&
-    pos.line <= range.end.line &&
-    pos.character >= range.start.character &&
-    pos.character <= range.end.character
-  );
+  return comparePosAndRange(pos, range) === 0;
 }
 
 // TODO: https://github.com/microsoft/TypeScript/issues/44227
