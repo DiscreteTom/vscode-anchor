@@ -22,4 +22,9 @@ export const config = {
       .getConfiguration("codeAnchor")
       .get("completionTriggerCharacters") as string[];
   },
+  get diagnosticSeverity() {
+    return vscode.workspace
+      .getConfiguration("codeAnchor")
+      .get("diagnosticSeverity") as number;
+  },
 };

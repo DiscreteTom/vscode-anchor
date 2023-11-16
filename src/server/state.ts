@@ -14,6 +14,7 @@ export class State {
   folderScanner?: RipGrepScanner;
   fileScanner?: RegexScanner;
   completionPrefixRegex?: RegExp;
+  severity: DiagnosticSeverity;
   readonly workspaceFolders: string[];
   readonly uri2diagnostics: Map<string, Diagnostic[]>;
   /**
@@ -38,12 +39,14 @@ export class State {
     this.name2defs = new Map();
     this.uri2defs = new Map();
     this.uri2refs = new Map();
+    this.severity = DiagnosticSeverity.Information;
   }
 
   async init(props: {
     definitionPattern: string;
     referencePattern: string;
     completionPrefixPattern: string;
+    diagnosticSeverity: DiagnosticSeverity;
     documents: TextDocuments<TextDocument>;
     vscodeRootPath: string;
     workspaceFolders: string[];
@@ -53,6 +56,7 @@ export class State {
     this.completionPrefixRegex = new RegExp(props.completionPrefixPattern);
     this.workspaceFolders.splice(0, this.workspaceFolders.length);
     this.workspaceFolders.push(...props.workspaceFolders);
+    this.severity = props.diagnosticSeverity;
 
     // init scanners
     // these regex are re-used in different scanner
@@ -176,7 +180,7 @@ export class State {
       if (defs.length > 1) {
         defs.forEach((def) => {
           this.appendDiagnostic(def.uri, {
-            severity: DiagnosticSeverity.Information, // TODO: make this configurable?
+            severity: this.severity,
             range: def.range,
             message: `duplicate definition: ${JSON.stringify(
               name

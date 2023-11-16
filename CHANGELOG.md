@@ -4,6 +4,7 @@
 
 - **_Breaking Change_**: apply ripgrep as the folder scanner. Make sure the definition pattern and reference pattern in your settings is compatible with rust's regex syntax. See [ripgrep's regex syntax](https://docs.rs/regex/latest/regex/index.html#syntax) for more details.
 - Feat: customizable completion trigger characters.
+- Feat: customizable diagnostic severity.
 
 ## v0.1.1
 

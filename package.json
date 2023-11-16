@@ -44,6 +44,17 @@
             "@"
           ],
           "markdownDescription": "Characters that trigger code anchor reference completion."
+        },
+        "codeAnchor.diagnosticSeverity": {
+          "type": "number",
+          "default": 3,
+          "enum": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "markdownDescription": "Severity of code anchor diagnostics. 1: Error, 2: Warning, 3: Information, 4: Hint"
         }
       }
     }

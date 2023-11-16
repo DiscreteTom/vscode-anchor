@@ -39,6 +39,7 @@ export async function activate(context: vscode.ExtensionContext) {
       referencePattern: config.referencePattern,
       completionPrefixPattern: config.completionPrefixPattern,
       completionTriggerCharacters: config.completionTriggerCharacters,
+      diagnosticSeverity: config.diagnosticSeverity,
       vscodeRootPath: vscode.env.appRoot,
     },
   };

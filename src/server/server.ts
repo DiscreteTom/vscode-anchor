@@ -1,4 +1,7 @@
-import type { InitializeParams } from "vscode-languageserver/node";
+import type {
+  DiagnosticSeverity,
+  InitializeParams,
+} from "vscode-languageserver/node";
 import {
   createConnection,
   ProposedFeatures,
@@ -24,6 +27,7 @@ connection.onInitialize(async (params: InitializeParams) => {
     referencePattern: string;
     completionPrefixPattern: string;
     completionTriggerCharacters: string[];
+    diagnosticSeverity: DiagnosticSeverity;
     vscodeRootPath: string;
   };
   const workspaceFolders = params.workspaceFolders?.map((f) => f.uri) ?? [];
