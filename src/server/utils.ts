@@ -1,6 +1,3 @@
-import * as fs from "fs";
-import * as url from "url";
-
 export function fileUri2relative(uri: string, workspaceFolders: string[]) {
   // TODO: find the longest match?
   for (const folder of workspaceFolders) {
@@ -28,31 +25,7 @@ export function debounce<Params extends unknown[]>(
   };
 }
 
-/**
- * Load all files from disk in parallel and call cb for each file.
- */
-export async function loadAll(
-  uris: string[],
-  cb: (uri: string, text: string) => void
-) {
-  await Promise.all(
-    uris.map((uri) => {
-      return new Promise<void>((resolve) => {
-        const filePath = url.fileURLToPath(uri);
-        fs.readFile(filePath, "utf8", (err, text) => {
-          if (err) {
-            console.error(`Error reading file ${filePath}: ${err}`);
-          } else {
-            cb(uri, text);
-          }
-          resolve();
-        });
-      });
-    })
-  );
-}
-
-// https://github.com/microsoft/TypeScript/issues/44227
+// TODO: https://github.com/microsoft/TypeScript/issues/44227
 declare global {
   interface RegExpIndicesArray extends Array<[number, number]> {
     groups?: {
