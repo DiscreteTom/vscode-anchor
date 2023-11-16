@@ -664,6 +664,11 @@ esbuild@^0.19.5:
     "@esbuild/win32-ia32" "0.19.5"
     "@esbuild/win32-x64" "0.19.5"
 
+esc4sh@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.npmmirror.com/esc4sh/-/esc4sh-0.1.0.tgz#c18da91d7433da3b9d05fc48aeb4521566adb4c7"
+  integrity sha512-by/Z0UtJNobaBP6ovd0j70fCMaO5/HqGB/ADuCicVufC9ddlbF24KpI02yMTz2Y9TPvjSE52eiRq8ncpV4hRTA==
+
 escalade@^3.1.1:
   version "3.1.1"
   resolved "https://registry.npmmirror.com/escalade/-/escalade-3.1.1.tgz#d8cfdc7000965c5a0174b4a82eaa5c0552742e40"
@@ -1587,6 +1592,13 @@ vscode-languageserver@^9.0.1:
   integrity sha512-woByF3PDpkHFUreUa7Hos7+pUWdeWMXRd26+ZX2A8cFx6v/JPTtd4/uN0/jB6XQHYaOlHbio03NTHCqrgG5n7g==
   dependencies:
     vscode-languageserver-protocol "3.17.5"
+
+vscode-ripgrep-utils@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.npmmirror.com/vscode-ripgrep-utils/-/vscode-ripgrep-utils-0.3.0.tgz#955637259491193ae5fbac9bdd38eb10ceccd44d"
+  integrity sha512-kmTGxuMVEiKC15UBKaTPYsUfZazDQwdeJiP4rlWSS5aKluUzx0HJajtk0KdF5xkPYs/rAJHBuBya5DgIxcHKSA==
+  dependencies:
+    esc4sh "^0.1.0"
 
 which@^2.0.1:
   version "2.0.2"

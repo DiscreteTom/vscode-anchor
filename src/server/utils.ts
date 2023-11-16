@@ -51,3 +51,27 @@ export async function loadAll(
     })
   );
 }
+
+// https://github.com/microsoft/TypeScript/issues/44227
+declare global {
+  interface RegExpIndicesArray extends Array<[number, number]> {
+    groups?: {
+      [key: string]: [number, number];
+    };
+
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    0: [number, number];
+  }
+
+  interface RegExpMatchArray {
+    indices?: RegExpIndicesArray;
+  }
+
+  interface RegExpExecArray {
+    indices?: RegExpIndicesArray;
+  }
+
+  interface RegExp {
+    readonly hasIndices: boolean;
+  }
+}

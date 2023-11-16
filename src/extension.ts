@@ -49,18 +49,11 @@ export async function activate(context: vscode.ExtensionContext) {
     clientOptions
   );
 
-  await client.start(); // this will also launch the server
+  // this will also launch the server
+  await client.start();
 
-  // TODO: remove this?
-  // init language server
-  // await client.sendRequest("code-anchor/init", {
-  //   folders:
-  //     vscode.workspace.workspaceFolders?.map((f) => f.uri.toString(true)) ?? [],
-  //   definitionPattern: config.definitionPattern,
-  //   referencePattern: config.referencePattern,
-  //   completionPrefixPattern: config.completionPrefixPattern,
-  //   vscodeRootPath: vscode.env.appRoot,
-  // });
+  // update semantic highlight & diagnostics
+  await client.sendRequest("code-anchor/init");
 }
 
 export function deactivate(): Thenable<void> | undefined {

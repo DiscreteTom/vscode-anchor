@@ -1,38 +1,19 @@
-import type { Range } from "vscode-languageserver/node";
+import type { Range, TextDocuments } from "vscode-languageserver/node";
 import {
   DiagnosticSeverity,
   type Diagnostic,
 } from "vscode-languageserver/node";
 import { fileUri2relative } from "./utils";
-
-// https://github.com/microsoft/TypeScript/issues/44227
-declare global {
-  interface RegExpIndicesArray extends Array<[number, number]> {
-    groups?: {
-      [key: string]: [number, number];
-    };
-
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    0: [number, number];
-  }
-
-  interface RegExpMatchArray {
-    indices?: RegExpIndicesArray;
-  }
-
-  interface RegExpExecArray {
-    indices?: RegExpIndicesArray;
-  }
-
-  interface RegExp {
-    readonly hasIndices: boolean;
-  }
-}
+import type { ScanResult } from "./scanner";
+import { RegexScanner } from "./scanner";
+import { RipGrepScanner } from "./scanner";
+import type { TextDocument } from "vscode-languageserver-textdocument";
+import { Kind } from "./model";
 
 export class State {
-  definitionPattern?: RegExp;
-  referencePattern?: RegExp;
-  completionPrefixPattern?: RegExp;
+  folderScanner?: RipGrepScanner;
+  fileScanner?: RegexScanner;
+  completionPrefixRegex?: RegExp;
   readonly workspaceFolders: string[];
   readonly uri2diagnostics: Map<string, Diagnostic[]>;
   /**
@@ -59,19 +40,74 @@ export class State {
     this.uri2refs = new Map();
   }
 
-  setPatterns(patterns: {
-    def: string;
-    ref: string;
-    completionPrefix: string;
+  async init(props: {
+    definitionPattern: string;
+    referencePattern: string;
+    completionPrefixPattern: string;
+    documents: TextDocuments<TextDocument>;
+    vscodeRootPath: string;
+    workspaceFolders: string[];
   }) {
-    this.definitionPattern = new RegExp(patterns.def, "dg");
-    this.referencePattern = new RegExp(patterns.ref, "dg");
-    this.completionPrefixPattern = new RegExp(patterns.completionPrefix);
+    const definitionRegex = new RegExp(props.definitionPattern, "dg");
+    const referenceRegex = new RegExp(props.referencePattern, "dg");
+    this.completionPrefixRegex = new RegExp(props.completionPrefixPattern);
+    this.workspaceFolders.splice(0, this.workspaceFolders.length);
+    this.workspaceFolders.push(...props.workspaceFolders);
+
+    // init scanners
+    this.fileScanner = new RegexScanner({
+      definitionRegex,
+      referenceRegex,
+      documents: props.documents,
+    });
+    this.folderScanner = new RipGrepScanner({
+      definitionRegex,
+      referenceRegex,
+    });
+    await this.folderScanner.init(props.vscodeRootPath);
+
+    // scan workspace folders
+    await this.refresh();
   }
 
-  setWorkspaceFolders(workspaceFolders: string[]) {
-    this.workspaceFolders.splice(0, this.workspaceFolders.length);
-    this.workspaceFolders.push(...workspaceFolders);
+  /**
+   * Re-scan workspace folders.
+   */
+  async refresh() {
+    console.time("refresh");
+    this.clearDiagnostics();
+    this.uri2defs.clear();
+    this.uri2refs.clear();
+    this.name2defs.clear();
+
+    (
+      await Promise.all(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.workspaceFolders.map((f) => this.folderScanner!.scanFolder(f))
+      )
+    ).forEach((rr) => rr.forEach((r) => this.appendResult(r)));
+    console.log(`finish scan workspace folders`);
+    console.timeEnd("refresh");
+  }
+
+  updateFile(uri: string) {
+    // clear states
+    // defs
+    (this.uri2defs.get(uri) ?? []).forEach((d) => {
+      this.name2defs.delete(d.name);
+    });
+    this.uri2defs.set(uri, []);
+
+    // refs
+    this.uri2refs.set(uri, []);
+
+    this.fileScanner?.scanFile(uri).forEach((r) => this.appendResult(r));
+  }
+
+  private appendResult(r: ScanResult) {
+    if (r.kind === Kind.def)
+      this.appendDefinition(r.uri, r.name, r.range, r.nameRange);
+    else this.appendReference(r.uri, r.name, r.range, r.nameRange);
   }
 
   // TODO: accept multi diagnostics
@@ -107,67 +143,16 @@ export class State {
     this.uri2refs.set(uri, refs);
   }
 
-  /**
-   * Scan for definitions and references in the given text.
-   * Update the state.
-   * If `override` is `true`, clear all defs and refs in this line.
-   */
-  scanFile(
-    uri: string,
-    text: string,
-    options: {
-      override: boolean;
-    }
-  ) {
-    const definitionPattern = this.definitionPattern;
-    const referencePattern = this.referencePattern;
-
-    if (definitionPattern === undefined || referencePattern === undefined) {
-      return;
-    }
-
-    if (options.override) {
-      // defs
-      (this.uri2defs.get(uri) ?? []).forEach((d) => {
-        this.name2defs.delete(d.name);
-      });
-      this.uri2defs.set(uri, []);
-
-      // refs
-      this.uri2refs.set(uri, []);
-    }
-
-    text.split("\n").forEach((line, lineIndex) => {
-      // defs
-      this.matchLine(
-        line,
-        lineIndex,
-        definitionPattern,
-        (name, range, nameRange) => {
-          // console.log(`found def: ${JSON.stringify(name)}`);
-          this.appendDefinition(uri, name, range, nameRange);
-        }
-      );
-
-      // refs
-      this.matchLine(
-        line,
-        lineIndex,
-        referencePattern,
-        (name, range, nameRange) => {
-          // console.log(`found ref: ${JSON.stringify(name)}`);
-          this.appendReference(uri, name, range, nameRange);
-        }
-      );
-    });
-  }
-
-  refreshDiagnostic() {
-    // clear diagnostics
+  clearDiagnostics() {
     // IMPORTANT: don't use `this.uri2diagnostics.clear()`
     // because the `uri` is used as the key in the `connection.sendDiagnostics` call.
     // if the uri has no diagnostics, send empty array to client to clear existing diagnostics.
     this.uri2diagnostics.forEach((ds) => ds.splice(0, ds.length));
+  }
+
+  refreshDiagnostic() {
+    // clear diagnostics
+    this.clearDiagnostics();
 
     // find duplicated definitions
     for (const [name, defs] of this.name2defs) {
@@ -202,38 +187,6 @@ export class State {
           });
         }
       });
-    }
-  }
-
-  private matchLine(
-    line: string,
-    lineIndex: number,
-    pattern: RegExp,
-    cb: (
-      /**
-       * The name is the content of the first capture group.
-       */
-      name: string,
-      range: Range,
-      nameRange: Range
-    ) => void
-  ) {
-    for (const m of line.matchAll(pattern)) {
-      cb(
-        m[1], // the first capture group
-        {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          start: { line: lineIndex, character: m.index! },
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          end: { line: lineIndex, character: m.index! + m[0].length },
-        },
-        {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          start: { line: lineIndex, character: m.indices![1][0] },
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          end: { line: lineIndex, character: m.indices![1][1] },
-        }
-      );
     }
   }
 }

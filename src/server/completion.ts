@@ -10,7 +10,7 @@ import { fileUri2relative } from "./utils";
 
 export function completionProvider(documents: TextDocuments<TextDocument>) {
   return (params: CompletionParams) => {
-    const completionPrefixPattern = state.completionPrefixPattern;
+    const completionPrefixPattern = state.completionPrefixRegex;
     if (completionPrefixPattern === undefined) return [];
 
     // get prefix in current line
