@@ -38,13 +38,13 @@ export function prepareRenameHandler(
     });
 
     // get all defs/refs in this line
-    const matches = [] as { name: string; nameRange: Range }[];
+    const matches = [] as { name: string; range: Range; nameRange: Range }[];
     scanner.scanLine(
       line,
       params.position.line,
       scanner.definitionRegex,
       (name, range, nameRange) => {
-        matches.push({ name, nameRange });
+        matches.push({ name, range, nameRange });
       }
     );
     scanner.scanLine(
@@ -52,20 +52,17 @@ export function prepareRenameHandler(
       params.position.line,
       scanner.referenceRegex,
       (name, range, nameRange) => {
-        matches.push({ name, nameRange });
+        matches.push({ name, range, nameRange });
       }
     );
 
     // find the match that contains the cursor
     for (const m of matches) {
       if (
-        m.nameRange.start.character <= params.position.character &&
-        m.nameRange.end.character >= params.position.character
+        m.range.start.character <= params.position.character &&
+        m.range.end.character >= params.position.character
       ) {
-        return {
-          range: m.nameRange,
-          placeholder: m.name,
-        };
+        return m.nameRange;
       }
     }
 
