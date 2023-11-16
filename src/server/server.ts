@@ -80,6 +80,7 @@ connection.onRequest("code-anchor/init", async () => {
 documents.listen(connection);
 documents.onDidOpen((_event) => {
   // console.log(`open ${event.document.uri}`);
+  // since we already scan all files in the workspace, we don't need to update the file here
   // state.updateFile(event.document.uri);
 });
 documents.onDidChangeContent(
