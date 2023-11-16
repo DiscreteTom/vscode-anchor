@@ -16,10 +16,7 @@ import { hoverProvider } from "./hover";
 import { definitionProvider } from "./definition";
 import { referenceProvider } from "./reference";
 import { completionProvider } from "./completion";
-import {
-  prepareRenameHandler as prepareRenameProvider,
-  renameProvider,
-} from "./rename";
+import { prepareRenameProvider, renameProvider } from "./rename";
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);

@@ -11,7 +11,7 @@ import { state } from "./state";
 import type { TextDocument } from "vscode-languageserver-textdocument";
 import { posInRange } from "./utils";
 
-export function prepareRenameHandler(
+export function prepareRenameProvider(
   documents: TextDocuments<TextDocument>
 ): RequestHandler<
   PrepareRenameParams,
