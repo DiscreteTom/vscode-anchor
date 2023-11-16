@@ -106,10 +106,11 @@ documents.onDidOpen((_event) => {
   // since we already scan all files in the workspace, we don't need to update the file here
   // state.updateFile(event.document.uri);
 });
+// [[onDidChangeContent]]
 documents.onDidChangeContent(
   debounce(200, (change) => {
-    // console.log(`change ${change.document.uri}`);
-    state.updateFile(change.document.uri);
+    console.log(`change ${change.document.uri}`);
+    state.updateFile(change.document.uri, change.document.getText());
     updateClient();
   })
 );

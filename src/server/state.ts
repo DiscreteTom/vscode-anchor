@@ -108,7 +108,11 @@ export class State {
     console.timeEnd("refresh");
   }
 
-  updateFile(uri: string) {
+  /**
+   * Re-scan a single file.
+   * If `text` is not provided, the file will be read from `documents`.
+   */
+  updateFile(uri: string, text?: string) {
     // clear states
     // defs
     (this.uri2defs.get(uri) ?? []).forEach((d) => {
@@ -119,7 +123,7 @@ export class State {
     // refs
     this.uri2refs.set(uri, []);
 
-    this.fileScanner?.scanFile(uri).forEach((r) => this.appendResult(r));
+    this.fileScanner?.scanFile(uri, text).forEach((r) => this.appendResult(r));
   }
 
   private appendResult(r: ScanResult) {

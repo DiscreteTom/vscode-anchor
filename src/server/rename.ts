@@ -82,71 +82,91 @@ export const renameProvider: ServerRequestHandler<
     return null;
   }
 
+  // find the definition that needs to be renamed
   // TODO: sort and use binary search?
-  for (const s of defs) {
-    if (s.range.start.line === params.position.line) {
-      if (posInRange(params.position, s.range)) {
-        const res = {
-          changes: {
-            [params.textDocument.uri]: [
-              {
-                range: s.nameRange,
-                newText: params.newName,
-              },
-            ],
-          },
-        };
-        state.uri2refs.forEach((refs, uri) => {
-          refs.forEach((ref) => {
-            if (ref.name === s.name) {
-              if (!res.changes[uri]) {
-                res.changes[uri] = [];
-              }
-              res.changes[uri].push({
-                range: ref.nameRange,
-                newText: params.newName,
-              });
-            }
-          });
-        });
-        return res;
-      }
+  let def = undefined as
+    | undefined
+    | { name: string; range: Range; nameRange: Range; uri: string };
+  for (const d of defs) {
+    if (posInRange(params.position, d.range)) {
+      def = { ...d, uri: params.textDocument.uri };
+      break;
     }
-    // TODO: optimize code
-    for (const s of refs) {
-      if (s.range.start.line === params.position.line) {
-        if (posInRange(params.position, s.range)) {
-          const def = state.name2defs.get(s.name);
-          if (!def) {
-            return null;
-          }
-          const res = {
-            changes: {
-              [params.textDocument.uri]: [
-                {
-                  range: def[0].nameRange,
-                  newText: params.newName,
-                },
-              ],
-            },
-          };
-          state.uri2refs.forEach((refs, uri) => {
-            refs.forEach((ref) => {
-              if (ref.name === s.name) {
-                if (!res.changes[uri]) {
-                  res.changes[uri] = [];
-                }
-                res.changes[uri].push({
-                  range: ref.nameRange,
-                  newText: params.newName,
-                });
-              }
-            });
-          });
-          return res;
-        }
-      }
-    }
-    if (s.range.start.line > params.position.line) break;
   }
+  if (def === undefined) {
+    for (const r of refs) {
+      if (posInRange(params.position, r.range)) {
+        const nameDef = state.name2defs.get(r.name)?.[0];
+        if (nameDef === undefined) {
+          // no definition for this reference
+          return null;
+        }
+        def = { ...nameDef, name: r.name };
+        break;
+      }
+    }
+  }
+
+  if (def === undefined) return null;
+
+  // theDef is not undefined here
+  const theDef = def;
+
+  // execute the rename
+  // first, rename the def
+  const res = {
+    changes: {
+      [theDef.uri]: [
+        {
+          range: theDef.nameRange,
+          newText: params.newName,
+        },
+      ],
+    },
+  };
+  // then rename refs
+  state.uri2refs.forEach((refs, uri) => {
+    refs.forEach((ref) => {
+      if (ref.name === theDef.name) {
+        if (!res.changes[uri]) {
+          res.changes[uri] = [];
+        }
+        res.changes[uri].push({
+          range: ref.nameRange,
+          newText: params.newName,
+        });
+      }
+    });
+  });
+
+  // also update state
+  // first, ensure the file scanner is ready
+  const scanner = state.fileScanner;
+  if (scanner !== undefined) {
+    // we need to update current file because rename doesn't trigger [[@onDidChangeContent]]
+    // other files' update will be triggered by [[@onDidChangeContent]]
+    // sort edits in reverse order so we can apply them from the end
+    const edits = res.changes[params.textDocument.uri].sort((b, a) =>
+      a.range.start.line === b.range.start.line
+        ? a.range.start.character - b.range.start.character
+        : a.range.start.line - b.range.start.line
+    );
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const lines = scanner.documents
+      .get(params.textDocument.uri)! // current file is opened so must be managed by documents
+      .getText()
+      .split("\n");
+    edits.forEach(
+      (e) =>
+        (lines[e.range.start.line] =
+          lines[e.range.start.line].slice(0, e.range.start.character) +
+          e.newText +
+          lines[e.range.end.line].slice(e.range.end.character))
+    );
+
+    // re-scan current file
+    state.updateFile(params.textDocument.uri, lines.join("\n"));
+  }
+
+  return res;
 };

@@ -22,10 +22,10 @@ export class RegexScanner {
     this.documents = props.documents;
   }
 
-  scanFile(uri: string): ScanResult[] {
+  scanFile(uri: string, text?: string): ScanResult[] {
     const res = [] as ScanResult[];
 
-    (this.documents.get(uri)?.getText() ?? "")
+    (text ?? this.documents.get(uri)?.getText() ?? "")
       .split("\n")
       .forEach((line, lineIndex) => {
         // defs
