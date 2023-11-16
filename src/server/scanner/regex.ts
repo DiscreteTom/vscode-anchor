@@ -65,6 +65,10 @@ export class RegexScanner {
       nameRange: Range
     ) => void
   ) {
+    // clear regex state
+    // see [[@def/ref regex]]
+    pattern.lastIndex = 0;
+
     for (const m of line.matchAll(pattern)) {
       cb(
         m[1], // the first capture group

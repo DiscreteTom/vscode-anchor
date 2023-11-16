@@ -86,9 +86,11 @@ export class RipGrepScanner {
       r.data.submatches.forEach((m) => {
         const regex =
           kind === Kind.def ? this.definitionRegex : this.referenceRegex;
+
+        // clear regex state
+        // see [[@def/ref regex]]
         regex.lastIndex = 0;
-        console.log(m.match.text);
-        console.log(regex);
+
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const matchRegex = regex.exec(m.match.text)!;
         res.push(this.constructResult(uri, Kind.def, r, m, matchRegex));

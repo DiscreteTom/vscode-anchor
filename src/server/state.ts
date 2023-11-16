@@ -55,6 +55,9 @@ export class State {
     this.workspaceFolders.push(...props.workspaceFolders);
 
     // init scanners
+    // these regex are re-used in different scanner
+    // make sure to set lastIndex before using them
+    // [[def/ref regex]]
     this.fileScanner = new RegexScanner({
       definitionRegex,
       referenceRegex,
