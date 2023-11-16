@@ -53,7 +53,7 @@ export class State {
   }) {
     const definitionRegex = new RegExp(props.definitionPattern, "dg");
     const referenceRegex = new RegExp(props.referencePattern, "dg");
-    this.completionPrefixRegex = new RegExp(props.completionPrefixPattern);
+    this.completionPrefixRegex = new RegExp(props.completionPrefixPattern, "g");
     this.workspaceFolders.splice(0, this.workspaceFolders.length);
     this.workspaceFolders.push(...props.workspaceFolders);
     this.severity = props.diagnosticSeverity;

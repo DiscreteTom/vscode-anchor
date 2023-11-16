@@ -10,8 +10,8 @@ import { fileUri2relative } from "./utils";
 
 export function completionProvider(documents: TextDocuments<TextDocument>) {
   return (params: CompletionParams) => {
-    const completionPrefixPattern = state.completionPrefixRegex;
-    if (completionPrefixPattern === undefined) return [];
+    const completionPrefixRegex = state.completionPrefixRegex;
+    if (completionPrefixRegex === undefined) return [];
 
     // get prefix in current line
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -20,12 +20,16 @@ export function completionProvider(documents: TextDocuments<TextDocument>) {
       end: { line: params.position.line, character: params.position.character },
     });
 
-    const prefixMatch = completionPrefixPattern.exec(prefix);
-    if (prefixMatch === null) {
+    completionPrefixRegex.lastIndex = 0;
+    // use matchAll in case current line has multiple refs
+    // pick the last one which is the closest to the cursor
+    const prefixMatch = [...prefix.matchAll(completionPrefixRegex)].at(-1);
+    if (prefixMatch === undefined) {
       return [];
     }
 
-    const defPrefix = prefix.slice(prefixMatch.index + prefixMatch[0].length);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const defPrefix = prefix.slice(prefixMatch.index! + prefixMatch[0].length);
 
     const result: CompletionItem[] = [];
 

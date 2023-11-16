@@ -3,6 +3,7 @@
 ## v0.2.1
 
 - Feat: rename anchors. [#2](https://github.com/DiscreteTom/vscode-anchor/issues/2)
+- Fix: completion will be triggered even current line has multiple references.
 
 ## v0.2.0
 
