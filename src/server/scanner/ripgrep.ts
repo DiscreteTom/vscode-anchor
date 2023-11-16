@@ -38,19 +38,36 @@ export class RipGrepScanner {
 
   async scanFolder(folderUri: string): Promise<ScanResult[]> {
     const folder = fileURLToPath(folderUri);
+    // TODO: remove this try-catch in vscode-ripgrep-utils v0.4
+    async function trySearch(f: () => Promise<ScanResult[]>) {
+      try {
+        return await f();
+      } catch (e) {
+        console.log(e);
+        return [];
+      }
+    }
     return [
-      ...this.handleSearchResult(
-        await search({
-          bin: this.bin,
-          folder,
-          regex: this.definitionPattern,
-        }),
-        Kind.def
-      ),
-      ...this.handleSearchResult(
-        await search({ bin: this.bin, folder, regex: this.referencePattern }),
-        Kind.ref
-      ),
+      ...(await trySearch(async () =>
+        this.handleSearchResult(
+          await search({
+            bin: this.bin,
+            folder,
+            regex: this.definitionPattern,
+          }),
+          Kind.def
+        )
+      )),
+      ...(await trySearch(async () =>
+        this.handleSearchResult(
+          await search({
+            bin: this.bin,
+            folder,
+            regex: this.referencePattern,
+          }),
+          Kind.ref
+        )
+      )),
     ];
   }
 
