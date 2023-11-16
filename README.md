@@ -18,7 +18,8 @@ Via VSCode Marketplace: [Code Anchor](https://marketplace.visualstudio.com/items
 - Hover for details.
 - Goto definition.
 - Find all references.
-- Customizable anchor regex.
+- [Customizable](#customize).
+- Fast. Powered by [`ripgrep`](https://github.com/BurntSushi/ripgrep).
 
 ## Usage
 
@@ -34,9 +35,18 @@ Then reference it in any file:
 [[@some words here]]
 ```
 
+> **Note**
+> Files in `.gitignore` are ignored.
+
 ## Customize
 
-You can customize the definition/reference syntax in the extension settings by providing a regex pattern.
+These options are customizable via VSCode's settings.
+
+- Definition pattern.
+- Reference pattern.
+- Completion prefix pattern.
+- Completion trigger characters.
+- Diagnostic severity.
 
 ## Credit
 
