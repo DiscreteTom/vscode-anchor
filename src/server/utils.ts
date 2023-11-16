@@ -1,3 +1,5 @@
+import type { Position, Range } from "vscode-languageserver/node";
+
 export function fileUri2relative(uri: string, workspaceFolders: string[]) {
   // TODO: find the longest match?
   for (const folder of workspaceFolders) {
@@ -23,6 +25,15 @@ export function debounce<Params extends unknown[]>(
       cb(...args);
     }, delay);
   };
+}
+
+export function posInRange(pos: Position, range: Range) {
+  return (
+    pos.line >= range.start.line &&
+    pos.line <= range.end.line &&
+    pos.character >= range.start.character &&
+    pos.character <= range.end.character
+  );
 }
 
 // TODO: https://github.com/microsoft/TypeScript/issues/44227

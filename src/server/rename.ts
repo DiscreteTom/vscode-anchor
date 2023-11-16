@@ -9,6 +9,7 @@ import type {
 } from "vscode-languageserver/node";
 import { state } from "./state";
 import type { TextDocument } from "vscode-languageserver-textdocument";
+import { posInRange } from "./utils";
 
 export function prepareRenameHandler(
   documents: TextDocuments<TextDocument>
@@ -58,10 +59,7 @@ export function prepareRenameHandler(
 
     // find the match that contains the cursor
     for (const m of matches) {
-      if (
-        m.range.start.character <= params.position.character &&
-        m.range.end.character >= params.position.character
-      ) {
+      if (posInRange(params.position, m.range)) {
         return m.nameRange;
       }
     }
@@ -87,10 +85,7 @@ export const renameProvider: ServerRequestHandler<
   // TODO: sort and use binary search?
   for (const s of defs) {
     if (s.range.start.line === params.position.line) {
-      if (
-        s.range.start.character <= params.position.character &&
-        s.range.end.character >= params.position.character
-      ) {
+      if (posInRange(params.position, s.range)) {
         const res = {
           changes: {
             [params.textDocument.uri]: [
@@ -120,10 +115,7 @@ export const renameProvider: ServerRequestHandler<
     // TODO: optimize code
     for (const s of refs) {
       if (s.range.start.line === params.position.line) {
-        if (
-          s.range.start.character <= params.position.character &&
-          s.range.end.character >= params.position.character
-        ) {
+        if (posInRange(params.position, s.range)) {
           const def = state.name2defs.get(s.name);
           if (!def) {
             return null;

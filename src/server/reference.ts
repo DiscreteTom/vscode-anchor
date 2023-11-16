@@ -1,5 +1,6 @@
 import type { Range, ReferenceParams } from "vscode-languageserver/node";
 import { state } from "./state";
+import { posInRange } from "./utils";
 
 export function referenceProvider(params: ReferenceParams) {
   const defs = state.uri2defs.get(params.textDocument.uri) ?? [];
@@ -9,11 +10,7 @@ export function referenceProvider(params: ReferenceParams) {
 
   // TODO: sort, use binary search
   for (const d of defs) {
-    if (
-      d.range.start.line === params.position.line &&
-      d.range.start.character <= params.position.character &&
-      d.range.end.character >= params.position.character
-    ) {
+    if (posInRange(params.position, d.range)) {
       const res = [] as { uri: string; range: Range }[];
       state.uri2refs.forEach((refs, uri) => {
         refs.forEach((r) => {

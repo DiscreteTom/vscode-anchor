@@ -1,5 +1,5 @@
 import type { HoverParams } from "vscode-languageserver/node";
-import { buildMarkupContent, fileUri2relative } from "./utils";
+import { buildMarkupContent, fileUri2relative, posInRange } from "./utils";
 import { Kind } from "./model";
 import { state } from "./state";
 
@@ -26,10 +26,7 @@ export function hoverProvider(params: HoverParams) {
   // TODO: use binary search
   for (const s of sorted) {
     if (s.range.start.line === params.position.line) {
-      if (
-        s.range.start.character <= params.position.character &&
-        s.range.end.character >= params.position.character
-      ) {
+      if (posInRange(params.position, s.range)) {
         if (s.type === Kind.def) {
           return {
             contents: {
