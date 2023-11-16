@@ -3,7 +3,7 @@ import type {
   RgJsonResultLine,
   RgJsonResultLineMatch,
 } from "vscode-ripgrep-utils";
-import { getBinPath, search } from "vscode-ripgrep-utils";
+import { getBinPath, search, config } from "vscode-ripgrep-utils";
 import type { ScanResult } from "./model";
 import { Kind } from "../model";
 
@@ -25,6 +25,9 @@ export class RipGrepScanner {
     this.definitionPattern = props.definitionRegex.source;
     this.referencePattern = props.referenceRegex.source;
     this.bin = "";
+
+    // show ripgrep command
+    config.debug = true;
   }
 
   /**
