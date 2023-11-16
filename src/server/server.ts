@@ -16,7 +16,10 @@ import { hoverProvider } from "./hover";
 import { definitionProvider } from "./definition";
 import { referenceProvider } from "./reference";
 import { completionProvider } from "./completion";
-import { renameProvider } from "./rename";
+import {
+  prepareRenameHandler as prepareRenameProvider,
+  renameProvider,
+} from "./rename";
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -43,6 +46,9 @@ connection.onInitialize(async (params: InitializeParams) => {
 
   return {
     capabilities: {
+      renameProvider: {
+        prepareProvider: true,
+      },
       textDocumentSync: TextDocumentSyncKind.Incremental,
       hoverProvider: true,
       completionProvider: {
@@ -71,6 +77,7 @@ connection.onDefinition(definitionProvider);
 connection.onReferences(referenceProvider);
 connection.onCompletion(completionProvider(documents));
 connection.onRenameRequest(renameProvider);
+connection.onPrepareRename(prepareRenameProvider(documents));
 
 function updateClient() {
   connection.languages.semanticTokens.refresh();

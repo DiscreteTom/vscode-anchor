@@ -1,9 +1,78 @@
 import type {
+  PrepareRenameParams,
+  Range,
   RenameParams,
+  RequestHandler,
   ServerRequestHandler,
+  TextDocuments,
   WorkspaceEdit,
 } from "vscode-languageserver/node";
 import { state } from "./state";
+import type { TextDocument } from "vscode-languageserver-textdocument";
+
+export function prepareRenameHandler(
+  documents: TextDocuments<TextDocument>
+): RequestHandler<
+  PrepareRenameParams,
+  | Range
+  | {
+      range: Range;
+      placeholder: string;
+    }
+  | {
+      defaultBehavior: boolean;
+    }
+  | null
+  | undefined,
+  void
+> {
+  return (params) => {
+    // make sure file scanner is ready
+    const scanner = state.fileScanner;
+    if (scanner === undefined) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const line = documents.get(params.textDocument.uri)!.getText({
+      start: { line: params.position.line, character: 0 },
+      end: { line: params.position.line + 1, character: 0 },
+    });
+
+    // get all defs/refs in this line
+    const matches = [] as { name: string; nameRange: Range }[];
+    scanner.scanLine(
+      line,
+      params.position.line,
+      scanner.definitionRegex,
+      (name, range, nameRange) => {
+        matches.push({ name, nameRange });
+      }
+    );
+    scanner.scanLine(
+      line,
+      params.position.line,
+      scanner.referenceRegex,
+      (name, range, nameRange) => {
+        matches.push({ name, nameRange });
+      }
+    );
+
+    // find the match that contains the cursor
+    for (const m of matches) {
+      if (
+        m.nameRange.start.character <= params.position.character &&
+        m.nameRange.end.character >= params.position.character
+      ) {
+        return {
+          range: m.nameRange,
+          placeholder: m.name,
+        };
+      }
+    }
+
+    // if no match contains the cursor, return undefined
+    return;
+  };
+}
 
 export const renameProvider: ServerRequestHandler<
   RenameParams,
