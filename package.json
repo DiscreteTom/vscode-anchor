@@ -2,7 +2,7 @@
   "name": "code-anchor",
   "displayName": "Code Anchor",
   "description": "Quickly navigate to anchors in your code.",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/DiscreteTom/vscode-anchor"
