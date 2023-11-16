@@ -83,19 +83,15 @@ export class State {
     }
 
     // scan workspace folders
+    this.clearAll();
     await this.refresh();
   }
 
   /**
    * Re-scan workspace folders.
+   * Before calling this you might want to call `clearAll` to clear previous results.
    */
   async refresh() {
-    // clear all
-    this.clearDiagnostics();
-    this.uri2defs.clear();
-    this.uri2refs.clear();
-    this.name2defs.clear();
-
     const folderScanner = this.folderScanner;
     if (folderScanner === undefined) {
       console.log(`refresh: no folder scanner`);
@@ -162,6 +158,13 @@ export class State {
     const refs = this.uri2refs.get(uri) ?? [];
     refs.push({ name, range, nameRange });
     this.uri2refs.set(uri, refs);
+  }
+
+  clearAll() {
+    this.clearDiagnostics();
+    this.name2defs.clear();
+    this.uri2defs.clear();
+    this.uri2refs.clear();
   }
 
   clearDiagnostics() {
