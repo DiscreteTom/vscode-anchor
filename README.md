@@ -35,7 +35,7 @@ Then reference it in any file:
 [[@some words here]]
 ```
 
-> **Note**
+> [!NOTE]
 > Files in `.gitignore` are ignored.
 
 ## Customize
