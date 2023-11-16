@@ -29,7 +29,7 @@ export class RegexScanner {
       .split("\n")
       .forEach((line, lineIndex) => {
         // defs
-        this.matchLine(
+        this.scanLine(
           line,
           lineIndex,
           this.definitionRegex,
@@ -39,7 +39,7 @@ export class RegexScanner {
         );
 
         // refs
-        this.matchLine(
+        this.scanLine(
           line,
           lineIndex,
           this.referenceRegex,
@@ -52,7 +52,7 @@ export class RegexScanner {
     return res;
   }
 
-  private matchLine(
+  scanLine(
     line: string,
     lineIndex: number,
     pattern: RegExp,
