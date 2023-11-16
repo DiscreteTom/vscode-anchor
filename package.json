@@ -37,6 +37,13 @@
           "type": "string",
           "default": "\\[\\[@",
           "markdownDescription": "Regular expression to match the prefix of a code anchor reference completion."
+        },
+        "codeAnchor.completionTriggerCharacters": {
+          "type": "array",
+          "default": [
+            "@"
+          ],
+          "markdownDescription": "Characters that trigger code anchor reference completion."
         }
       }
     }

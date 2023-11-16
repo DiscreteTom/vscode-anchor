@@ -23,6 +23,7 @@ connection.onInitialize(async (params: InitializeParams) => {
     definitionPattern: string;
     referencePattern: string;
     completionPrefixPattern: string;
+    completionTriggerCharacters: string[];
     vscodeRootPath: string;
   };
   const workspaceFolders = params.workspaceFolders?.map((f) => f.uri) ?? [];
@@ -41,8 +42,7 @@ connection.onInitialize(async (params: InitializeParams) => {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       hoverProvider: true,
       completionProvider: {
-        // TODO: make this configurable
-        triggerCharacters: ["@"],
+        triggerCharacters: options.completionTriggerCharacters,
         resolveProvider: false,
       },
       semanticTokensProvider: {

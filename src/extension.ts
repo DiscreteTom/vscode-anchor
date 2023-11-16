@@ -38,6 +38,7 @@ export async function activate(context: vscode.ExtensionContext) {
       definitionPattern: config.definitionPattern,
       referencePattern: config.referencePattern,
       completionPrefixPattern: config.completionPrefixPattern,
+      completionTriggerCharacters: config.completionTriggerCharacters,
       vscodeRootPath: vscode.env.appRoot,
     },
   };

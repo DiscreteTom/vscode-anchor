@@ -17,4 +17,9 @@ export const config = {
       .getConfiguration("codeAnchor")
       .get("completionPrefixPattern") as string;
   },
+  get completionTriggerCharacters() {
+    return vscode.workspace
+      .getConfiguration("codeAnchor")
+      .get("completionTriggerCharacters") as string[];
+  },
 };
