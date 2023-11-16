@@ -56,6 +56,15 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // update semantic highlight & diagnostics
   await client.sendRequest("code-anchor/init");
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "codeAnchor.refreshWorkspaceFolders",
+      async () => {
+        await client.sendRequest("code-anchor/refresh");
+      }
+    )
+  );
 }
 
 export function deactivate(): Thenable<void> | undefined {

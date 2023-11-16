@@ -72,13 +72,25 @@ connection.onReferences(referenceProvider);
 connection.onCompletion(completionProvider(documents));
 connection.onRenameRequest(renameProvider);
 
-connection.onRequest("code-anchor/init", async () => {
+function updateClient() {
   connection.languages.semanticTokens.refresh();
   state.refreshDiagnostic();
   state.uri2diagnostics.forEach((diagnostics, uri) => {
     connection.sendDiagnostics({ uri, diagnostics });
   });
+}
+
+connection.onRequest("code-anchor/init", async () => {
+  updateClient();
   console.log(`init done`);
+});
+
+connection.onRequest("code-anchor/refresh", async () => {
+  state.clearAll();
+  updateClient();
+  await state.refresh();
+  updateClient();
+  console.log(`refresh done`);
 });
 
 documents.listen(connection);
@@ -91,11 +103,7 @@ documents.onDidChangeContent(
   debounce(200, (change) => {
     // console.log(`change ${change.document.uri}`);
     state.updateFile(change.document.uri);
-    connection.languages.semanticTokens.refresh();
-    state.refreshDiagnostic();
-    state.uri2diagnostics.forEach((diagnostics, uri) => {
-      connection.sendDiagnostics({ uri, diagnostics });
-    });
+    updateClient();
   })
 );
 

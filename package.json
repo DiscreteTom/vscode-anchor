@@ -57,7 +57,14 @@
           "markdownDescription": "Severity of code anchor diagnostics. 1: Error, 2: Warning, 3: Information, 4: Hint"
         }
       }
-    }
+    },
+    "commands": [
+      {
+        "command": "codeAnchor.refreshWorkspaceFolders",
+        "title": "Re-Scan Workspace Folders",
+        "category": "Code Anchor"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint src --ext ts",
