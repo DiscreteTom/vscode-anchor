@@ -18,6 +18,7 @@ Via VSCode Marketplace: [Code Anchor](https://marketplace.visualstudio.com/items
 - Hover for details.
 - Goto definition.
 - Find all references.
+- Rename definitions.
 - [Customizable](#customize).
 - Fast. Powered by [`ripgrep`](https://github.com/BurntSushi/ripgrep).
 
