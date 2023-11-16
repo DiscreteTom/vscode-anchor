@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.2.0
+
+- **_Breaking Change_**: apply ripgrep as the folder scanner. Make sure the definition pattern and reference pattern in your settings is compatible with rust's regex syntax. See [ripgrep's regex syntax](https://docs.rs/regex/latest/regex/index.html#syntax) for more details.
+
 ## v0.1.1
 
 - Fix: clear diagnostics correctly.
