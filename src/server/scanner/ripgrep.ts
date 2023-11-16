@@ -2,6 +2,7 @@ import { fileURLToPath, pathToFileURL } from "url";
 import type {
   RgJsonResultLine,
   RgJsonResultLineMatch,
+  SubMatch,
 } from "vscode-ripgrep-utils";
 import { getBinPath, search, config } from "vscode-ripgrep-utils";
 import type { ScanResult } from "./model";
@@ -68,13 +69,13 @@ export class RipGrepScanner {
   ): ScanResult[] {
     const res = [] as ScanResult[];
 
-    lines.forEach((r) => {
-      if (r.type !== "match") return;
+    lines.forEach((line) => {
+      if (line.type !== "match") return;
 
       // file uri
-      const uri = pathToFileURL(r.data.path.text).toString();
+      const uri = pathToFileURL(line.data.path.text).toString();
 
-      r.data.submatches.forEach((m) => {
+      line.data.submatches.forEach((match) => {
         const regex =
           kind === Kind.def ? this.definitionRegex : this.referenceRegex;
 
@@ -83,8 +84,8 @@ export class RipGrepScanner {
         regex.lastIndex = 0;
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const matchRegex = regex.exec(m.match.text)!;
-        res.push(this.constructResult(uri, Kind.def, r, m, matchRegex));
+        const regexMatch = regex.exec(match.match.text)!;
+        res.push(this.constructResult(uri, Kind.def, line, match, regexMatch));
       });
     });
 
@@ -95,20 +96,7 @@ export class RipGrepScanner {
     uri: string,
     kind: Kind,
     lineMatch: RgJsonResultLineMatch,
-    subMatch: {
-      // TODO: use SubMatch
-      match: {
-        text: string;
-      };
-      /**
-       * 0-based offset.
-       */
-      start: number;
-      /**
-       * 0-based offset.
-       */
-      end: number;
-    },
+    subMatch: SubMatch,
     regexMatch: RegExpMatchArray
   ): ScanResult {
     return {
