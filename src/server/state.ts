@@ -113,16 +113,19 @@ export class State {
    * If `text` is not provided, the file will be read from `documents`.
    */
   updateFile(uri: string, text?: string) {
-    // clear states
+    // clear states about the file
     // defs
     (this.uri2defs.get(uri) ?? []).forEach((d) => {
-      this.name2defs.delete(d.name);
+      this.name2defs.set(
+        d.name,
+        (this.name2defs.get(d.name) ?? []).filter((d) => d.uri !== uri)
+      );
     });
     this.uri2defs.set(uri, []);
-
     // refs
     this.uri2refs.set(uri, []);
 
+    // scan the file
     this.fileScanner?.scanFile(uri, text).forEach((r) => this.appendResult(r));
   }
 

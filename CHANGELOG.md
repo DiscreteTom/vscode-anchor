@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.2.3
+
+- Fix: definition will be correctly refreshed if duplicate definition exists across files.
+
 ## v0.2.2
 
 - Fix: rename will refresh all related files.
