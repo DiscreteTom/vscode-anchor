@@ -60,6 +60,11 @@
           "type": "boolean",
           "default": false,
           "markdownDescription": "Whether to allow code anchor definitions with no references."
+        },
+        "codeAnchor.updateFileDebounceLatency": {
+          "type": "number",
+          "default": 200,
+          "markdownDescription": "Debounce latency (ms) for re-scanning a file after changes."
         }
       }
     },

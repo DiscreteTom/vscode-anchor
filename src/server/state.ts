@@ -16,6 +16,7 @@ export class State {
   completionPrefixRegex?: RegExp;
   severity: DiagnosticSeverity;
   allowUnusedDefinitions: boolean;
+  updateFileDebounceLatency: number;
   readonly workspaceFolders: string[];
   readonly uri2diagnostics: Map<string, Diagnostic[]>;
   /**
@@ -47,6 +48,7 @@ export class State {
     this.uri2refs = new Map();
     this.severity = DiagnosticSeverity.Information;
     this.allowUnusedDefinitions = false;
+    this.updateFileDebounceLatency = 200;
   }
 
   async init(props: {
@@ -55,6 +57,7 @@ export class State {
     completionPrefixPattern: string;
     diagnosticSeverity: DiagnosticSeverity;
     allowUnusedDefinitions: boolean;
+    updateFileDebounceLatency: number;
     documents: TextDocuments<TextDocument>;
     vscodeRootPath: string;
     workspaceFolders: string[];
@@ -66,6 +69,7 @@ export class State {
     this.workspaceFolders.push(...props.workspaceFolders);
     this.severity = props.diagnosticSeverity;
     this.allowUnusedDefinitions = props.allowUnusedDefinitions;
+    this.updateFileDebounceLatency = props.updateFileDebounceLatency;
 
     // init scanners
     // these regex are re-used in different scanner

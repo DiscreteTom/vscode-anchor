@@ -28,6 +28,7 @@ connection.onInitialize(async (params: InitializeParams) => {
     completionTriggerCharacters: string[];
     diagnosticSeverity: DiagnosticSeverity;
     allowUnusedDefinitions: boolean;
+    updateFileDebounceLatency: number;
     vscodeRootPath: string;
   };
   const workspaceFolders = params.workspaceFolders?.map((f) => f.uri) ?? [];
@@ -109,13 +110,17 @@ documents.onDidChangeContent((change) => {
   // uri-aware debounce
   const timeoutHandle = timeoutMap.get(change.document.uri);
   if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
+
+  const timeout = state.updateFileDebounceLatency;
   timeoutMap.set(
     change.document.uri,
     setTimeout(() => {
-      console.log(`change (debounced) ${change.document.uri}`);
+      console.log(
+        `change (debounced after ${timeout}ms) ${change.document.uri}`
+      );
       state.updateFile(change.document.uri, change.document.getText());
       updateClient();
-    }, 200)
+    }, state.updateFileDebounceLatency)
   );
 });
 

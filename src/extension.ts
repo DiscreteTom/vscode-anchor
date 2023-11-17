@@ -41,6 +41,7 @@ export async function activate(context: vscode.ExtensionContext) {
       completionTriggerCharacters: config.completionTriggerCharacters,
       diagnosticSeverity: config.diagnosticSeverity,
       allowUnusedDefinitions: config.allowUnusedDefinitions,
+      updateFileDebounceLatency: config.updateFileDebounceLatency,
       vscodeRootPath: vscode.env.appRoot,
     },
   };

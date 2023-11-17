@@ -32,4 +32,9 @@ export const config = {
       .getConfiguration("codeAnchor")
       .get("allowUnusedDefinitions") as boolean;
   },
+  get updateFileDebounceLatency() {
+    return vscode.workspace
+      .getConfiguration("codeAnchor")
+      .get("updateFileDebounceLatency") as number;
+  },
 };
