@@ -48,6 +48,8 @@ These options are customizable via VSCode's settings.
 - Completion prefix pattern.
 - Completion trigger characters.
 - Diagnostic severity.
+- Whether to allow unused definitions.
+- Update file debounce latency.
 
 ## Credit
 
