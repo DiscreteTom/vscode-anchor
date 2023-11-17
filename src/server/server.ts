@@ -104,7 +104,6 @@ documents.onDidOpen((_event) => {
 });
 
 const timeoutMap = new Map<string, ReturnType<typeof setTimeout>>();
-// [[onDidChangeContent]]
 documents.onDidChangeContent((change) => {
   // uri-aware debounce
   const timeoutHandle = timeoutMap.get(change.document.uri);
