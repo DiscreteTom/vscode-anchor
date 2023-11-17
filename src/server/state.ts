@@ -15,6 +15,7 @@ export class State {
   fileScanner?: RegexScanner;
   completionPrefixRegex?: RegExp;
   severity: DiagnosticSeverity;
+  allowUnusedDefinitions: boolean;
   readonly workspaceFolders: string[];
   readonly uri2diagnostics: Map<string, Diagnostic[]>;
   /**
@@ -45,6 +46,7 @@ export class State {
     this.name2refs = new Map();
     this.uri2refs = new Map();
     this.severity = DiagnosticSeverity.Information;
+    this.allowUnusedDefinitions = false;
   }
 
   async init(props: {
@@ -52,6 +54,7 @@ export class State {
     referencePattern: string;
     completionPrefixPattern: string;
     diagnosticSeverity: DiagnosticSeverity;
+    allowUnusedDefinitions: boolean;
     documents: TextDocuments<TextDocument>;
     vscodeRootPath: string;
     workspaceFolders: string[];
@@ -62,6 +65,7 @@ export class State {
     this.workspaceFolders.splice(0, this.workspaceFolders.length);
     this.workspaceFolders.push(...props.workspaceFolders);
     this.severity = props.diagnosticSeverity;
+    this.allowUnusedDefinitions = props.allowUnusedDefinitions;
 
     // init scanners
     // these regex are re-used in different scanner
@@ -236,17 +240,19 @@ export class State {
       });
     }
 
-    // find definition with no references
-    for (const [uri, defs] of this.uri2defs) {
-      defs.forEach((def) => {
-        if ((this.name2refs.get(def.name) ?? []).length === 0) {
-          this.appendDiagnostic(uri, {
-            severity: this.severity,
-            range: def.range,
-            message: `unused definition: ${JSON.stringify(def.name)}`,
-          });
-        }
-      });
+    if (!this.allowUnusedDefinitions) {
+      // find definition with no references
+      for (const [uri, defs] of this.uri2defs) {
+        defs.forEach((def) => {
+          if ((this.name2refs.get(def.name) ?? []).length === 0) {
+            this.appendDiagnostic(uri, {
+              severity: this.severity,
+              range: def.range,
+              message: `unused definition: ${JSON.stringify(def.name)}`,
+            });
+          }
+        });
+      }
     }
   }
 }

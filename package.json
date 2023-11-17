@@ -55,6 +55,11 @@
             4
           ],
           "markdownDescription": "Severity of code anchor diagnostics. 1: Error, 2: Warning, 3: Information, 4: Hint"
+        },
+        "codeAnchor.allowUnusedDefinitions": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Whether to allow code anchor definitions with no references."
         }
       }
     },

@@ -27,4 +27,9 @@ export const config = {
       .getConfiguration("codeAnchor")
       .get("diagnosticSeverity") as number;
   },
+  get allowUnusedDefinitions() {
+    return vscode.workspace
+      .getConfiguration("codeAnchor")
+      .get("allowUnusedDefinitions") as boolean;
+  },
 };

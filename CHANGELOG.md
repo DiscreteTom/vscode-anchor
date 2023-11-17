@@ -2,7 +2,7 @@
 
 ## v0.2.3
 
-- Feat: scan for unused definitions.
+- Feat: scan for unused definitions. Can be disabled by setting `Allow Unused Definitions` to `true`.
 - Fix: definition will be correctly refreshed if duplicate definition exists across files.
 - Fix: apply severity settings.
 

@@ -40,6 +40,7 @@ export async function activate(context: vscode.ExtensionContext) {
       completionPrefixPattern: config.completionPrefixPattern,
       completionTriggerCharacters: config.completionTriggerCharacters,
       diagnosticSeverity: config.diagnosticSeverity,
+      allowUnusedDefinitions: config.allowUnusedDefinitions,
       vscodeRootPath: vscode.env.appRoot,
     },
   };

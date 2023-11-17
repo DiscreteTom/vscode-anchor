@@ -27,6 +27,7 @@ connection.onInitialize(async (params: InitializeParams) => {
     completionPrefixPattern: string;
     completionTriggerCharacters: string[];
     diagnosticSeverity: DiagnosticSeverity;
+    allowUnusedDefinitions: boolean;
     vscodeRootPath: string;
   };
   const workspaceFolders = params.workspaceFolders?.map((f) => f.uri) ?? [];
