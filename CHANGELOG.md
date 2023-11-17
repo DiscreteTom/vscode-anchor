@@ -4,6 +4,7 @@
 
 - Feat: scan for unused definitions.
 - Fix: definition will be correctly refreshed if duplicate definition exists across files.
+- Fix: apply severity settings.
 
 ## v0.2.2
 

@@ -228,8 +228,7 @@ export class State {
       refs.forEach((ref) => {
         if (!this.name2defs.has(ref.name)) {
           this.appendDiagnostic(uri, {
-            // TODO: fix severity
-            severity: DiagnosticSeverity.Information,
+            severity: this.severity,
             range: ref.range,
             message: `undefined reference: ${JSON.stringify(ref.name)}`,
           });
@@ -242,8 +241,7 @@ export class State {
       defs.forEach((def) => {
         if ((this.name2refs.get(def.name) ?? []).length === 0) {
           this.appendDiagnostic(uri, {
-            // TODO: fix severity
-            severity: DiagnosticSeverity.Information,
+            severity: this.severity,
             range: def.range,
             message: `unused definition: ${JSON.stringify(def.name)}`,
           });
