@@ -4,6 +4,7 @@
 
 - Feat: scan for unused definitions. Can be disabled by setting `Allow Unused Definitions` to `true`.
 - Feat: configurable update file debounce latency.
+- Feat: auto refresh after configuration changed.
 - Fix: definition will be correctly refreshed if duplicate definition exists across files.
 - Fix: apply severity settings.
 

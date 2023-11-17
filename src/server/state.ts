@@ -17,6 +17,7 @@ export class State {
   severity: DiagnosticSeverity;
   allowUnusedDefinitions: boolean;
   updateFileDebounceLatency: number;
+  vscodeRootPath: string;
   readonly workspaceFolders: string[];
   readonly uri2diagnostics: Map<string, Diagnostic[]>;
   /**
@@ -49,6 +50,7 @@ export class State {
     this.severity = DiagnosticSeverity.Information;
     this.allowUnusedDefinitions = false;
     this.updateFileDebounceLatency = 200;
+    this.vscodeRootPath = "";
   }
 
   async init(props: {
@@ -70,6 +72,7 @@ export class State {
     this.severity = props.diagnosticSeverity;
     this.allowUnusedDefinitions = props.allowUnusedDefinitions;
     this.updateFileDebounceLatency = props.updateFileDebounceLatency;
+    this.vscodeRootPath = props.vscodeRootPath;
 
     // init scanners
     // these regex are re-used in different scanner

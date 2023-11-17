@@ -77,26 +77,50 @@ connection.onCompletion(completionProvider(documents));
 connection.onRenameRequest(renameProvider);
 connection.onPrepareRename(prepareRenameProvider(documents));
 
-function updateClient() {
+async function updateClient() {
   connection.languages.semanticTokens.refresh();
   state.refreshDiagnostic();
+  const ps = [] as Promise<void>[];
   state.uri2diagnostics.forEach((diagnostics, uri) => {
-    connection.sendDiagnostics({ uri, diagnostics });
+    ps.push(connection.sendDiagnostics({ uri, diagnostics }));
   });
+  await Promise.all(ps);
 }
 
 connection.onRequest("code-anchor/init", async () => {
-  updateClient();
+  await updateClient();
   console.log(`init done`);
 });
 
 connection.onRequest("code-anchor/refresh", async () => {
   state.clearAll();
-  updateClient();
+  await updateClient();
   await state.refresh();
-  updateClient();
+  await updateClient();
   console.log(`refresh done`);
 });
+
+connection.onRequest(
+  "code-anchor/refreshSettings",
+  async (params: {
+    definitionPattern: string;
+    referencePattern: string;
+    completionPrefixPattern: string;
+    completionTriggerCharacters: string[];
+    diagnosticSeverity: DiagnosticSeverity;
+    allowUnusedDefinitions: boolean;
+    updateFileDebounceLatency: number;
+  }) => {
+    console.log(`refresh settings: ${JSON.stringify(params)}`);
+    await state.init({
+      ...params,
+      documents,
+      vscodeRootPath: state.vscodeRootPath,
+      workspaceFolders: [...state.workspaceFolders], // copy
+    });
+    await updateClient();
+  }
+);
 
 documents.listen(connection);
 documents.onDidOpen((_event) => {

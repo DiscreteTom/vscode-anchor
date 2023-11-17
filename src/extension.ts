@@ -65,7 +65,20 @@ export async function activate(context: vscode.ExtensionContext) {
       async () => {
         await client.sendRequest("code-anchor/refresh");
       }
-    )
+    ),
+    vscode.workspace.onDidChangeConfiguration(async (e) => {
+      if (e.affectsConfiguration("codeAnchor")) {
+        await client.sendRequest("code-anchor/refreshSettings", {
+          definitionPattern: config.definitionPattern,
+          referencePattern: config.referencePattern,
+          completionPrefixPattern: config.completionPrefixPattern,
+          completionTriggerCharacters: config.completionTriggerCharacters,
+          diagnosticSeverity: config.diagnosticSeverity,
+          allowUnusedDefinitions: config.allowUnusedDefinitions,
+          updateFileDebounceLatency: config.updateFileDebounceLatency,
+        });
+      }
+    })
   );
 }
 
