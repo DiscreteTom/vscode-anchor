@@ -28,6 +28,10 @@ export class State {
     string,
     { name: string; range: Range; nameRange: Range }[]
   >;
+  readonly name2refs: Map<
+    string,
+    { uri: string; range: Range; nameRange: Range }[]
+  >;
   readonly uri2refs: Map<
     string,
     { name: string; range: Range; nameRange: Range }[]
@@ -38,6 +42,7 @@ export class State {
     this.uri2diagnostics = new Map();
     this.name2defs = new Map();
     this.uri2defs = new Map();
+    this.name2refs = new Map();
     this.uri2refs = new Map();
     this.severity = DiagnosticSeverity.Information;
   }
@@ -118,11 +123,17 @@ export class State {
     (this.uri2defs.get(uri) ?? []).forEach((d) => {
       this.name2defs.set(
         d.name,
-        (this.name2defs.get(d.name) ?? []).filter((d) => d.uri !== uri)
+        (this.name2defs.get(d.name) ?? []).filter((dd) => dd.uri !== uri)
       );
     });
     this.uri2defs.set(uri, []);
     // refs
+    (this.uri2refs.get(uri) ?? []).forEach((r) => {
+      this.name2refs.set(
+        r.name,
+        (this.name2refs.get(r.name) ?? []).filter((rr) => rr.uri !== uri)
+      );
+    });
     this.uri2refs.set(uri, []);
 
     // scan the file
@@ -162,15 +173,20 @@ export class State {
     range: Range,
     nameRange: Range
   ) {
-    const refs = this.uri2refs.get(uri) ?? [];
-    refs.push({ name, range, nameRange });
-    this.uri2refs.set(uri, refs);
+    const uri2refs = this.uri2refs.get(uri) ?? [];
+    uri2refs.push({ name, range, nameRange });
+    this.uri2refs.set(uri, uri2refs);
+
+    const name2refs = this.name2refs.get(name) ?? [];
+    name2refs.push({ uri, range, nameRange });
+    this.name2refs.set(name, name2refs);
   }
 
   clearAll() {
     this.clearDiagnostics();
     this.name2defs.clear();
     this.uri2defs.clear();
+    this.name2refs.clear();
     this.uri2refs.clear();
   }
 
@@ -212,9 +228,24 @@ export class State {
       refs.forEach((ref) => {
         if (!this.name2defs.has(ref.name)) {
           this.appendDiagnostic(uri, {
+            // TODO: fix severity
             severity: DiagnosticSeverity.Information,
             range: ref.range,
             message: `undefined reference: ${JSON.stringify(ref.name)}`,
+          });
+        }
+      });
+    }
+
+    // find definition with no references
+    for (const [uri, defs] of this.uri2defs) {
+      defs.forEach((def) => {
+        if ((this.name2refs.get(def.name) ?? []).length === 0) {
+          this.appendDiagnostic(uri, {
+            // TODO: fix severity
+            severity: DiagnosticSeverity.Information,
+            range: def.range,
+            message: `unused definition: ${JSON.stringify(def.name)}`,
           });
         }
       });

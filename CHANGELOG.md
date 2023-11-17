@@ -2,6 +2,7 @@
 
 ## v0.2.3
 
+- Feat: scan for unused definitions.
 - Fix: definition will be correctly refreshed if duplicate definition exists across files.
 
 ## v0.2.2
