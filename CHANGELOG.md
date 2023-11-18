@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.2.4
+
+- Feat: add a tree view to show all definitions in side bar. [#3](https://github.com/DiscreteTom/vscode-anchor/issues/3)
+
 ## v0.2.3
 
 - Feat: scan for unused definitions. Can be disabled by setting `Allow Unused Definitions` to `true`.

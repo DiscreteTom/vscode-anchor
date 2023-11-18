@@ -72,9 +72,29 @@
       {
         "command": "codeAnchor.refreshWorkspaceFolders",
         "title": "Re-Scan Workspace Folders",
-        "category": "Code Anchor"
+        "category": "Code Anchor",
+        "icon": "$(refresh)"
       }
-    ]
+    ],
+    "views": {
+      "explorer": [
+        {
+          "type": "tree",
+          "id": "codeAnchor.definitions",
+          "name": "Code Anchor Definitions",
+          "contextualTitle": "Code Anchor"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "codeAnchor.refreshWorkspaceFolders",
+          "when": "view == codeAnchor.definitions",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "lint": "eslint src --ext ts",

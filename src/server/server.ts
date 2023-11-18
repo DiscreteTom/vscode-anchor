@@ -85,6 +85,56 @@ async function updateClient() {
     ps.push(connection.sendDiagnostics({ uri, diagnostics }));
   });
   await Promise.all(ps);
+
+  // construct tree
+  const treeData = [] as {
+    name: string;
+    uri: string;
+    // deep copy range
+    range: {
+      start: { line: number; character: number };
+      end: { line: number; character: number };
+    };
+    refs: {
+      uri: string;
+      range: {
+        start: { line: number; character: number };
+        end: { line: number; character: number };
+      };
+    }[];
+  }[];
+  state.name2defs.forEach((defs, name) => {
+    if (defs.length === 1) {
+      treeData.push({
+        name,
+        uri: defs[0].uri,
+        range: {
+          start: {
+            line: defs[0].range.start.line,
+            character: defs[0].range.start.character,
+          },
+          end: {
+            line: defs[0].range.end.line,
+            character: defs[0].range.end.character,
+          },
+        },
+        refs: (state.name2refs.get(name) ?? []).map((r) => ({
+          uri: r.uri,
+          range: {
+            start: {
+              line: r.range.start.line,
+              character: r.range.start.character,
+            },
+            end: {
+              line: r.range.end.line,
+              character: r.range.end.character,
+            },
+          },
+        })),
+      });
+    }
+  });
+  connection.sendRequest("code-anchor/refreshTree", treeData);
 }
 
 connection.onRequest("code-anchor/init", async () => {

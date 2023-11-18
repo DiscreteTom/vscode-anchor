@@ -53,6 +53,39 @@ export async function activate(context: vscode.ExtensionContext) {
     clientOptions
   );
 
+  // tree view
+  // must register onRequest before client.start()
+  // TODO: extract server/client common type
+  const treeModel = {
+    data: [] as {
+      name: string;
+      uri: string;
+      // deep copy range
+      range: {
+        start: { line: number; character: number };
+        end: { line: number; character: number };
+      };
+      refs: {
+        uri: string;
+        range: {
+          start: { line: number; character: number };
+          end: { line: number; character: number };
+        };
+      }[];
+    }[],
+  };
+  const treeDataProvider = new TreeDataProvider(treeModel);
+  client.onRequest("code-anchor/refreshTree", (data) => {
+    treeModel.data = data;
+    treeDataProvider._onDidChangeTreeData.fire();
+  });
+  context.subscriptions.push(
+    vscode.window.createTreeView("codeAnchor.definitions", {
+      showCollapseAll: true,
+      treeDataProvider: treeDataProvider,
+    })
+  );
+
   // this will also launch the server
   await client.start();
 
@@ -88,4 +121,78 @@ export function deactivate(): Thenable<void> | undefined {
   }
   // this will also stop the server
   return client.stop();
+}
+
+type TreeNode = {
+  kind: "definition" | "folder" | "file";
+  uri: vscode.Uri;
+  name: string;
+};
+
+class TreeDataProvider implements vscode.TreeDataProvider<TreeNode> {
+  _onDidChangeTreeData: vscode.EventEmitter<void> =
+    new vscode.EventEmitter<void>();
+  readonly onDidChangeTreeData: vscode.Event<
+    TreeNode | TreeNode[] | undefined | null | void
+  > = this._onDidChangeTreeData.event;
+
+  constructor(
+    private model: {
+      data: {
+        name: string;
+        uri: string;
+        range: {
+          start: {
+            line: number;
+            character: number;
+          };
+          end: {
+            line: number;
+            character: number;
+          };
+        };
+        refs: {
+          uri: string;
+          range: {
+            start: {
+              line: number;
+              character: number;
+            };
+            end: {
+              line: number;
+              character: number;
+            };
+          };
+        }[];
+      }[];
+    }
+  ) {}
+
+  public getTreeItem(element: TreeNode): vscode.TreeItem {
+    return {
+      resourceUri: element.uri,
+      collapsibleState: ["definition", "folder"].includes(element.kind)
+        ? vscode.TreeItemCollapsibleState.Collapsed
+        : undefined,
+      label: element.name,
+    };
+  }
+
+  public getChildren(element?: TreeNode): TreeNode[] {
+    return element === undefined
+      ? this.model.data.map((d) => ({
+          kind: "definition",
+          name: d.name,
+          uri: vscode.Uri.parse(d.uri),
+        }))
+      : element.kind === "definition"
+      ? this.model.data
+          .find((d) => d.name === element.name)
+          ?.refs.map((r) => ({
+            kind: "file",
+            uri: vscode.Uri.parse(r.uri),
+            name: r.uri,
+          })) ?? []
+      : [];
+  }
 }
