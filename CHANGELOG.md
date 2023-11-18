@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.2.5
+
+- Note: change the diagnostic text for undefined definitions.
+
 ## v0.2.4
 
 - Feat: add a tree view to show all definitions in side bar. [#3](https://github.com/DiscreteTom/vscode-anchor/issues/3)

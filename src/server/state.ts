@@ -230,14 +230,14 @@ export class State {
       }
     }
 
-    // find undefined references
+    // find undefined definitions
     for (const [uri, refs] of this.uri2refs) {
       refs.forEach((ref) => {
         if (!this.name2defs.has(ref.name)) {
           this.appendDiagnostic(uri, {
             severity: this.severity,
             range: ref.range,
-            message: `undefined reference: ${JSON.stringify(ref.name)}`,
+            message: `undefined definition: ${JSON.stringify(ref.name)}`,
           });
         }
       });
