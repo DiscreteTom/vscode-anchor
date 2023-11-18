@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import type { TreeData } from "./common";
+import { constructPosUri, type TreeData } from "./common";
 
 export type TreeNode = {
   kind: "definition" | "folder" | "file";
@@ -18,9 +18,10 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeNode> {
   constructor(private model: { data: TreeData }) {}
 
   public getTreeItem(element: TreeNode): vscode.TreeItem {
-    const posUri = `${element.uri.toString(true)}#L${
-      element.range.start.line + 1
-    }:${element.range.start.character + 1}`;
+    const posUri = constructPosUri(
+      element.uri.toString(true),
+      element.range.start
+    );
     return {
       resourceUri: element.uri,
       collapsibleState: ["definition", "folder"].includes(element.kind)
@@ -32,8 +33,8 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeNode> {
         element.kind === "file"
           ? {
               title: "Go to reference",
-              command: "vscode.open",
-              arguments: [posUri],
+              command: "vscode.openWith",
+              arguments: [element.uri, "default", { selection: element.range }],
             }
           : undefined,
     };
