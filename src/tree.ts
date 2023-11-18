@@ -18,9 +18,9 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeNode> {
   constructor(private model: { data: TreeData }) {}
 
   public getTreeItem(element: TreeNode): vscode.TreeItem {
-    const posUri = `${element.uri.toString(true)}:${element.range.start.line}:${
-      element.range.start.character
-    }`;
+    const posUri = `${element.uri.toString(true)}#L${
+      element.range.start.line + 1
+    }:${element.range.start.character + 1}`;
     return {
       resourceUri: element.uri,
       collapsibleState: ["definition", "folder"].includes(element.kind)
@@ -28,6 +28,14 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeNode> {
         : undefined,
       label: element.name,
       id: posUri,
+      command:
+        element.kind === "file"
+          ? {
+              title: "Go to reference",
+              command: "vscode.open",
+              arguments: [posUri],
+            }
+          : undefined,
     };
   }
 
