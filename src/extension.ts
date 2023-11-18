@@ -60,7 +60,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const treeDataProvider = new TreeDataProvider(treeModel);
   client.onRequest("code-anchor/refreshTree", (data) => {
     treeModel.data = data;
-    treeDataProvider._onDidChangeTreeData.fire();
+    treeDataProvider.emitter.fire();
   });
   context.subscriptions.push(
     vscode.window.createTreeView("codeAnchor.definitions", {
@@ -113,11 +113,8 @@ type TreeNode = {
 };
 
 class TreeDataProvider implements vscode.TreeDataProvider<TreeNode> {
-  _onDidChangeTreeData: vscode.EventEmitter<void> =
-    new vscode.EventEmitter<void>();
-  readonly onDidChangeTreeData: vscode.Event<
-    TreeNode | TreeNode[] | undefined | null | void
-  > = this._onDidChangeTreeData.event;
+  readonly emitter = new vscode.EventEmitter<void>();
+  readonly onDidChangeTreeData = this.emitter.event;
 
   constructor(private model: { data: TreeData }) {}
 
