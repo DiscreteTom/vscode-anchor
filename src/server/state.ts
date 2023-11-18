@@ -9,6 +9,7 @@ import { RegexScanner } from "./scanner";
 import { RipGrepScanner } from "./scanner";
 import type { TextDocument } from "vscode-languageserver-textdocument";
 import { Kind } from "./model";
+import type { ServerInitializationOptions } from "../common";
 
 export class State {
   folderScanner?: RipGrepScanner;
@@ -53,23 +54,19 @@ export class State {
     this.vscodeRootPath = "";
   }
 
-  async init(props: {
-    definitionPattern: string;
-    referencePattern: string;
-    completionPrefixPattern: string;
-    diagnosticSeverity: DiagnosticSeverity;
-    allowUnusedDefinitions: boolean;
-    updateFileDebounceLatency: number;
-    documents: TextDocuments<TextDocument>;
-    vscodeRootPath: string;
-    workspaceFolders: string[];
-  }) {
+  async init(
+    props: ServerInitializationOptions & {
+      documents: TextDocuments<TextDocument>;
+      vscodeRootPath: string;
+      workspaceFolders: string[];
+    }
+  ) {
     const definitionRegex = new RegExp(props.definitionPattern, "dg");
     const referenceRegex = new RegExp(props.referencePattern, "dg");
     this.completionPrefixRegex = new RegExp(props.completionPrefixPattern, "g");
     this.workspaceFolders.splice(0, this.workspaceFolders.length);
     this.workspaceFolders.push(...props.workspaceFolders);
-    this.severity = props.diagnosticSeverity;
+    this.severity = props.diagnosticSeverity as DiagnosticSeverity;
     this.allowUnusedDefinitions = props.allowUnusedDefinitions;
     this.updateFileDebounceLatency = props.updateFileDebounceLatency;
     this.vscodeRootPath = props.vscodeRootPath;

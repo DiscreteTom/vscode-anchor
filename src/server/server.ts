@@ -16,21 +16,13 @@ import { definitionProvider } from "./definition";
 import { referenceProvider } from "./reference";
 import { completionProvider } from "./completion";
 import { prepareRenameProvider, renameProvider } from "./rename";
+import type { ServerInitializationOptions, TreeData } from "../common";
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 connection.onInitialize(async (params: InitializeParams) => {
-  const options = params.initializationOptions as {
-    definitionPattern: string;
-    referencePattern: string;
-    completionPrefixPattern: string;
-    completionTriggerCharacters: string[];
-    diagnosticSeverity: DiagnosticSeverity;
-    allowUnusedDefinitions: boolean;
-    updateFileDebounceLatency: number;
-    vscodeRootPath: string;
-  };
+  const options = params.initializationOptions as ServerInitializationOptions;
   const workspaceFolders = params.workspaceFolders?.map((f) => f.uri) ?? [];
 
   console.log(`initialization options: ${JSON.stringify(options)}`);
@@ -87,27 +79,13 @@ async function updateClient() {
   await Promise.all(ps);
 
   // construct tree
-  const treeData = [] as {
-    name: string;
-    uri: string;
-    // deep copy range
-    range: {
-      start: { line: number; character: number };
-      end: { line: number; character: number };
-    };
-    refs: {
-      uri: string;
-      range: {
-        start: { line: number; character: number };
-        end: { line: number; character: number };
-      };
-    }[];
-  }[];
+  const treeData = [] as TreeData;
   state.name2defs.forEach((defs, name) => {
     if (defs.length === 1) {
       treeData.push({
         name,
         uri: defs[0].uri,
+        // deep copy range to prevent unexpected serialization error
         range: {
           start: {
             line: defs[0].range.start.line,

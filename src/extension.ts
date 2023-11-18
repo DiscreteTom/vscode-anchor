@@ -7,6 +7,7 @@ import type {
 import { LanguageClient } from "vscode-languageclient/node";
 import { TransportKind } from "vscode-languageclient/node";
 import { config } from "./config";
+import type { ServerInitializationOptions, TreeData } from "./common";
 
 let client: LanguageClient;
 
@@ -43,7 +44,7 @@ export async function activate(context: vscode.ExtensionContext) {
       allowUnusedDefinitions: config.allowUnusedDefinitions,
       updateFileDebounceLatency: config.updateFileDebounceLatency,
       vscodeRootPath: vscode.env.appRoot,
-    },
+    } satisfies ServerInitializationOptions,
   };
 
   client = new LanguageClient(
@@ -55,25 +56,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // tree view
   // must register onRequest before client.start()
-  // TODO: extract server/client common type
-  const treeModel = {
-    data: [] as {
-      name: string;
-      uri: string;
-      // deep copy range
-      range: {
-        start: { line: number; character: number };
-        end: { line: number; character: number };
-      };
-      refs: {
-        uri: string;
-        range: {
-          start: { line: number; character: number };
-          end: { line: number; character: number };
-        };
-      }[];
-    }[],
-  };
+  const treeModel = { data: [] as TreeData };
   const treeDataProvider = new TreeDataProvider(treeModel);
   client.onRequest("code-anchor/refreshTree", (data) => {
     treeModel.data = data;
@@ -136,37 +119,7 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeNode> {
     TreeNode | TreeNode[] | undefined | null | void
   > = this._onDidChangeTreeData.event;
 
-  constructor(
-    private model: {
-      data: {
-        name: string;
-        uri: string;
-        range: {
-          start: {
-            line: number;
-            character: number;
-          };
-          end: {
-            line: number;
-            character: number;
-          };
-        };
-        refs: {
-          uri: string;
-          range: {
-            start: {
-              line: number;
-              character: number;
-            };
-            end: {
-              line: number;
-              character: number;
-            };
-          };
-        }[];
-      }[];
-    }
-  ) {}
+  constructor(private model: { data: TreeData }) {}
 
   public getTreeItem(element: TreeNode): vscode.TreeItem {
     return {
