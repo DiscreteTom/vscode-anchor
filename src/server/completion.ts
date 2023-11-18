@@ -6,7 +6,7 @@ import type {
 import { CompletionItemKind } from "vscode-languageserver/node";
 import type { TextDocument } from "vscode-languageserver-textdocument";
 import { state } from "./state";
-import { fileUri2relative } from "./utils";
+import { fileUri2relative } from "../common";
 
 export function completionProvider(documents: TextDocuments<TextDocument>) {
   return (params: CompletionParams) => {

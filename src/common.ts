@@ -38,3 +38,13 @@ export function constructPosUri(
   // https://github.com/microsoft/vscode/issues/149523
   return `${fileUri}#L${pos.line + 1},${pos.character + 1}`;
 }
+
+export function fileUri2relative(uri: string, workspaceFolders: string[]) {
+  // TODO: find the longest match?
+  for (const folder of workspaceFolders) {
+    if (uri.startsWith(folder)) {
+      return uri.slice(folder.length + 1); // +1 for the slash
+    }
+  }
+  return uri;
+}

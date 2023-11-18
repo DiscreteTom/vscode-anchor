@@ -1,8 +1,8 @@
 import type { HoverParams } from "vscode-languageserver/node";
-import { buildMarkupContent, fileUri2relative, posInRange } from "./utils";
+import { buildMarkupContent, posInRange } from "./utils";
 import { Kind } from "./model";
 import { state } from "./state";
-import { constructPosUri } from "../common";
+import { constructPosUri, fileUri2relative } from "../common";
 
 export function hoverProvider(params: HoverParams) {
   const defs = (state.uri2defs.get(params.textDocument.uri) ?? []).map((d) => ({

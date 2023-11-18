@@ -3,13 +3,12 @@ import {
   DiagnosticSeverity,
   type Diagnostic,
 } from "vscode-languageserver/node";
-import { fileUri2relative } from "./utils";
 import type { ScanResult } from "./scanner";
 import { RegexScanner } from "./scanner";
 import { RipGrepScanner } from "./scanner";
 import type { TextDocument } from "vscode-languageserver-textdocument";
 import { Kind } from "./model";
-import type { ServerInitializationOptions } from "../common";
+import { fileUri2relative, type ServerInitializationOptions } from "../common";
 
 export class State {
   folderScanner?: RipGrepScanner;

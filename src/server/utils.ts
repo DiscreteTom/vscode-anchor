@@ -1,15 +1,5 @@
 import type { Position, Range } from "vscode-languageserver/node";
 
-export function fileUri2relative(uri: string, workspaceFolders: string[]) {
-  // TODO: find the longest match?
-  for (const folder of workspaceFolders) {
-    if (uri.startsWith(folder)) {
-      return uri.slice(folder.length + 1); // +1 for the slash
-    }
-  }
-  return uri;
-}
-
 export function buildMarkupContent(content: string[][]) {
   return content.map((l) => l.join("\n")).join("\n\n---\n\n"); // separator
 }

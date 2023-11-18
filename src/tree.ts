@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { constructPosUri, type TreeData } from "./common";
+import { constructPosUri, fileUri2relative, type TreeData } from "./common";
 
 export type TreeNode = {
   kind: "definition" | "folder" | "file";
@@ -15,8 +15,12 @@ export type TreeNode = {
 export class TreeDataProvider implements vscode.TreeDataProvider<TreeNode> {
   readonly emitter = new vscode.EventEmitter<void>();
   readonly onDidChangeTreeData = this.emitter.event;
+  readonly workspaceFolders: vscode.Uri[];
 
-  constructor(private model: { data: TreeData }) {}
+  constructor(private model: { data: TreeData }) {
+    this.workspaceFolders =
+      vscode.workspace.workspaceFolders?.map((f) => f.uri) ?? [];
+  }
 
   public getTreeItem(element: TreeNode): vscode.TreeItem {
     return {
@@ -38,28 +42,44 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeNode> {
     };
   }
 
-  public getChildren(element?: TreeNode): TreeNode[] {
-    return element === undefined
-      ? this.model.data
-          .map((d) => ({
-            kind: "definition" as const,
-            name: d.name,
-            uri: vscode.Uri.parse(d.uri),
-            range: d.range,
-            posUri: constructPosUri(d.uri, d.range.start),
-          }))
-          .sort((a, b) => a.name.localeCompare(b.name))
-      : element.kind === "definition"
-      ? this.model.data
-          .find((d) => d.name === element.name)
-          ?.refs.map((r) => ({
-            kind: "file" as const,
-            uri: vscode.Uri.parse(r.uri),
-            name: r.uri,
-            range: r.range,
-            posUri: constructPosUri(r.uri, r.range.start),
-          }))
+  public getChildren(parent?: TreeNode): TreeNode[] {
+    if (parent === undefined) {
+      // top level, show definitions
+      return this.model.data
+        .map((d) => ({
+          kind: "definition" as const,
+          name: d.name,
+          uri: vscode.Uri.parse(d.uri),
+          range: d.range,
+          posUri: constructPosUri(d.uri, d.range.start),
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    if (parent.kind === "definition") {
+      // show references
+      // TODO: show folders instead of definitions
+      return (
+        this.model.data
+          .find((d) => d.name === parent.name)
+          ?.refs.map((r) => {
+            const posUri = constructPosUri(r.uri, r.range.start);
+            return {
+              kind: "file" as const,
+              uri: vscode.Uri.parse(r.uri),
+              name: fileUri2relative(
+                posUri,
+                this.workspaceFolders.map((uri) => uri.toString(true))
+              ),
+              range: r.range,
+              posUri,
+            };
+          })
           .sort((a, b) => a.posUri.localeCompare(b.posUri)) ?? []
-      : [];
+      );
+    }
+
+    // else, element is a reference, no children
+    return [];
   }
 }
