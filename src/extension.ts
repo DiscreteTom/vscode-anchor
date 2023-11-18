@@ -8,6 +8,7 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { TransportKind } from "vscode-languageclient/node";
 import { config } from "./config";
 import type { ServerInitializationOptions, TreeData } from "./common";
+import type { TreeNode } from "./tree";
 import { TreeDataProvider } from "./tree";
 
 let client: LanguageClient;
@@ -81,6 +82,18 @@ export async function activate(context: vscode.ExtensionContext) {
       "codeAnchor.refreshWorkspaceFolders",
       async () => {
         await client.sendRequest("code-anchor/refresh");
+      }
+    ),
+    vscode.commands.registerCommand(
+      "codeAnchor.gotoDefinition",
+      async (params?: TreeNode) => {
+        if (params === undefined) return;
+        vscode.commands.executeCommand(
+          "vscode.openWith",
+          params.uri,
+          "default",
+          { selection: params.range }
+        );
       }
     ),
     vscode.workspace.onDidChangeConfiguration(async (e) => {

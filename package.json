@@ -74,6 +74,12 @@
         "title": "Re-Scan Workspace Folders",
         "category": "Code Anchor",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "codeAnchor.gotoDefinition",
+        "title": "Goto Definition",
+        "category": "Code Anchor",
+        "icon": "$(arrow-right)"
       }
     ],
     "views": {
@@ -92,6 +98,13 @@
           "command": "codeAnchor.refreshWorkspaceFolders",
           "when": "view == codeAnchor.definitions",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "codeAnchor.gotoDefinition",
+          "when": "view == codeAnchor.definitions && viewItem == definition",
+          "group": "inline"
         }
       ]
     }

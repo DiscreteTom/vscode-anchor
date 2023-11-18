@@ -37,6 +37,7 @@ export class TreeDataProvider implements vscode.TreeDataProvider<TreeNode> {
               arguments: [element.uri, "default", { selection: element.range }],
             }
           : undefined,
+      contextValue: element.kind,
     };
   }
 
