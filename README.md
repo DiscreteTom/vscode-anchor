@@ -19,6 +19,8 @@ Via VSCode Marketplace: [Code Anchor](https://marketplace.visualstudio.com/items
 - Goto definition.
 - Find all references.
 - Rename definitions.
+- Show all definitions in side bar.
+- Diagnostics for unused, undefined and duplicated definitions.
 - [Customizable](#customize).
 - Fast. Powered by [`ripgrep`](https://github.com/BurntSushi/ripgrep).
 
