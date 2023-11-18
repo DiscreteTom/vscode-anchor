@@ -1,4 +1,4 @@
-// common types for server/client
+// common types & functions for server/client
 
 export type ServerInitializationOptions = {
   definitionPattern: string;
@@ -30,3 +30,11 @@ export type TreeData = {
     };
   }[];
 }[];
+
+export function constructPosUri(
+  fileUri: string,
+  pos: { line: number; character: number }
+) {
+  // https://github.com/microsoft/vscode/issues/149523
+  return `${fileUri}#L${pos.line + 1},${pos.character + 1}`;
+}

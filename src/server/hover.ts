@@ -2,6 +2,7 @@ import type { HoverParams } from "vscode-languageserver/node";
 import { buildMarkupContent, fileUri2relative, posInRange } from "./utils";
 import { Kind } from "./model";
 import { state } from "./state";
+import { constructPosUri } from "../common";
 
 export function hoverProvider(params: HoverParams) {
   const defs = (state.uri2defs.get(params.textDocument.uri) ?? []).map((d) => ({
@@ -57,9 +58,10 @@ export function hoverProvider(params: HoverParams) {
               def === undefined
                 ? [`Code Anchor reference.`]
                 : [
-                    `Code Anchor reference. [Go to definition](${def.uri}#L${
-                      def.range.start.line + 1
-                    },${def.range.start.character + 1}) (ctrl+click).`,
+                    `Code Anchor reference. [Go to definition](${constructPosUri(
+                      def.uri,
+                      def.range.start
+                    )}) (ctrl+click).`,
                   ],
             ]),
           },
