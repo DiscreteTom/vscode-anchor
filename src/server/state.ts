@@ -125,6 +125,8 @@ export class State {
    * If `text` is not provided, the file will be read from `documents`.
    */
   updateFile(uri: string, text?: string) {
+    // [[updateFile]]
+
     // clear states about the file
     // defs
     (this.uri2defs.get(uri) ?? []).forEach((d) => {

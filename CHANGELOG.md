@@ -3,6 +3,7 @@
 ## v0.2.5
 
 - Note: change the diagnostic text for undefined definitions.
+- Fix: completion failed due to partial definitions.
 
 ## v0.2.4
 

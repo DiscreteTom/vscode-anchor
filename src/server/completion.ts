@@ -34,9 +34,12 @@ export function completionProvider(documents: TextDocuments<TextDocument>) {
     const result: CompletionItem[] = [];
 
     for (const [name, defs] of state.name2defs.entries()) {
-      if (!name.startsWith(defPrefix)) {
-        continue;
-      }
+      if (!name.startsWith(defPrefix)) continue;
+      // maybe a name exists but no defs
+      // because we set the entry to `[]` instead of clear this entry in the name2defs map
+      // when [[@updateFile]]
+      if (defs.length === 0) continue;
+
       result.push({
         label: name,
         kind: CompletionItemKind.Constant,
