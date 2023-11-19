@@ -33,7 +33,7 @@ export function completionProvider(documents: TextDocuments<TextDocument>) {
 
     const result: CompletionItem[] = [];
 
-    for (const [name, def] of state.name2defs.entries()) {
+    for (const [name, defs] of state.name2defs.entries()) {
       if (!name.startsWith(defPrefix)) {
         continue;
       }
@@ -41,7 +41,7 @@ export function completionProvider(documents: TextDocuments<TextDocument>) {
         label: name,
         kind: CompletionItemKind.Constant,
         labelDetails: {
-          description: fileUri2relative(def[0].uri, state.workspaceFolders),
+          description: fileUri2relative(defs[0].uri, state.workspaceFolders),
         },
         detail: "Code Anchor definition",
         filterText: name,
