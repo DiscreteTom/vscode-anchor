@@ -1,5 +1,6 @@
 import { fileURLToPath, pathToFileURL } from "url";
 import type {
+  ExecJsonResult,
   RgJsonResultLine,
   RgJsonResultLineMatch,
   SubMatch,
@@ -43,24 +44,43 @@ export class RipGrepScanner {
   async scanFolder(folderUri: string): Promise<ScanResult[]> {
     const folder = fileURLToPath(folderUri);
 
+    const [defRes, refRes] = await Promise.all([
+      await search({
+        bin: this.bin,
+        folder,
+        regex: this.definitionPattern,
+      }),
+      await search({
+        bin: this.bin,
+        folder,
+        regex: this.referencePattern,
+      }),
+    ]);
+
+    this.logError(defRes, Kind.def);
+    this.logError(refRes, Kind.ref);
+
     return [
-      ...this.handleSearchResult(
-        await search({
-          bin: this.bin,
-          folder,
-          regex: this.definitionPattern,
-        }),
-        Kind.def
-      ),
-      ...this.handleSearchResult(
-        await search({
-          bin: this.bin,
-          folder,
-          regex: this.referencePattern,
-        }),
-        Kind.ref
-      ),
+      ...this.handleSearchResult(defRes.lines, Kind.def),
+      ...this.handleSearchResult(refRes.lines, Kind.ref),
     ];
+  }
+
+  private logError(res: ExecJsonResult, kind: Kind) {
+    if (res.error !== null) {
+      console.log(
+        `error when scanning ${
+          kind === Kind.def ? "definitions" : "references"
+        }: ${res.error}`
+      );
+    }
+    if (res.stderr.length !== 0) {
+      console.log(
+        `stderr when scanning ${
+          kind === Kind.def ? "definitions" : "references"
+        }: ${res.stderr}`
+      );
+    }
   }
 
   private handleSearchResult(

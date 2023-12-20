@@ -1578,10 +1578,10 @@ vscode-languageserver@^9.0.1:
   dependencies:
     vscode-languageserver-protocol "3.17.5"
 
-vscode-ripgrep-utils@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.npmmirror.com/vscode-ripgrep-utils/-/vscode-ripgrep-utils-0.4.2.tgz#10ff8b255285d44de519ddb3f270cdccea77ab74"
-  integrity sha512-7VJ0Rh7j1k9ODF50yg/FS4aZHYanUUXJV6e/KeCXJ1H/FCWoZ15CVSLH0NEqAXRszXTJAvpQdfuzjHQqIfhucA==
+vscode-ripgrep-utils@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.npmmirror.com/vscode-ripgrep-utils/-/vscode-ripgrep-utils-0.5.0.tgz#08f6cebb34ea17fa94851e04fb3fd583d032ff2e"
+  integrity sha512-5dJKaXa48h31fd/fF47I2eSL6TwezF5Ve2yfsvC/bjJIHtiSoJMYtSwoxWMIAQnTplBGKvrWCjon3mNdDPRqeA==
   dependencies:
     esc4sh "^0.1.0"
 

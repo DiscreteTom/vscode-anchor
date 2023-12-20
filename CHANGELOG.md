@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.2.6
+
+- Fix: [#4](https://github.com/DiscreteTom/vscode-anchor/issues/4)
+
 ## v0.2.5
 
 - Note: change the diagnostic text for undefined definitions.
