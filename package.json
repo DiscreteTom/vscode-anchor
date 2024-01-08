@@ -2,7 +2,7 @@
   "name": "code-anchor",
   "displayName": "Code Anchor",
   "description": "Quickly navigate to anchors in your code.",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "repository": {
     "type": "git",
     "url": "https://github.com/DiscreteTom/vscode-anchor"
@@ -139,6 +139,6 @@
     "vscode-languageclient": "^9.0.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.11",
-    "vscode-ripgrep-utils": "^0.5.0"
+    "vscode-ripgrep-utils": "^0.6.0"
   }
 }
