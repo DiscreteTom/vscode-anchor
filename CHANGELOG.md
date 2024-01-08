@@ -2,7 +2,7 @@
 
 ## v0.2.7
 
-- Perf: prevent unnecessary diagnostic message generation.
+- Perf: prevent unnecessary diagnostic message generation, reduce diagnostic message size.
 
 ## v0.2.6
 
