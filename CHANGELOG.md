@@ -2,6 +2,7 @@
 
 ## v0.2.7
 
+- Fix: [#6](https://github.com/DiscreteTom/vscode-anchor/issues/6) by applying vscode-ripgrep-utils@v0.6.0.
 - Perf: prevent unnecessary diagnostic message generation, reduce diagnostic message size.
 
 ## v0.2.6
