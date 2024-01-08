@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.2.7
+
+- Perf: prevent unnecessary diagnostic message generation.
+
 ## v0.2.6
 
 - Fix: [#4](https://github.com/DiscreteTom/vscode-anchor/issues/4)

@@ -213,20 +213,22 @@ export class State {
     // find duplicated definitions
     for (const [name, defs] of this.name2defs) {
       if (defs.length > 1) {
+        const head = defs.slice(0, 3); // only pick at most the first 3 defs, to prevent too many diagnostics causing oom
+        const message = `duplicate definition: ${JSON.stringify(
+          name
+        )}, found at ${head
+          .map(
+            (d) =>
+              `${fileUri2relative(d.uri, this.workspaceFolders)}:${
+                d.range.start.line + 1
+              }:${d.range.start.character + 1}`
+          )
+          .join(", ")}`;
         defs.forEach((def) => {
           this.appendDiagnostic(def.uri, {
             severity: this.severity,
             range: def.range,
-            message: `duplicate definition: ${JSON.stringify(
-              name
-            )}, found at ${defs
-              .map(
-                (d) =>
-                  `${fileUri2relative(d.uri, this.workspaceFolders)}:${
-                    d.range.start.line + 1
-                  }:${d.range.start.character + 1}`
-              )
-              .join(", ")}`,
+            message,
           });
         });
       }
